@@ -1,0 +1,30 @@
+name: CI Backend
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4 # Use a more recent version of checkout
+
+      - name: Use Node.js 16.x # Using Node 16 as initially suggested
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16'
+          cache: 'npm' # Enable caching for npm dependencies
+
+      - name: Install dependencies
+        run: npm ci # Use 'npm ci' for faster, reliable installs in CI
+
+      - name: Run lint
+        run: npm run lint
+
+      # Placeholder for tests - uncomment and adapt when tests are added
+      # - name: Run tests
+      #   run: npm test
+

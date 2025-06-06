@@ -1,0 +1,57 @@
+{"level":30,"time":1749244006923,"pid":23037,"hostname":"f07a69b5620a","msg":"Registrando plugin employeeRoutes..."}
+{"level":30,"time":1749244006925,"pid":23037,"hostname":"f07a69b5620a","msg":"Plugin employeeRoutes registrado com sucesso."}
+{"level":30,"time":1749244006944,"pid":23037,"hostname":"f07a69b5620a","msg":"Server listening at http://127.0.0.1:4000"}
+{"level":30,"time":1749244006944,"pid":23037,"hostname":"f07a69b5620a","msg":"Server listening at http://169.254.0.21:4000"}
+{"level":30,"time":1749244006944,"pid":23037,"hostname":"f07a69b5620a","msg":"Servidor ouvindo na porta 4000"}
+{"level":30,"time":1749244017104,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","req":{"method":"POST","url":"/employees","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":53988},"msg":"incoming request"}
+{"level":30,"time":1749244017105,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Recebida requisição POST /employees"}
+{"level":30,"time":1749244017105,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Processando multipart/form-data..."}
+{"level":30,"time":1749244017112,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Processando parte: field - fullName"}
+{"level":30,"time":1749244017112,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Campo fullName: João Silva"}
+{"level":30,"time":1749244017112,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Processando parte: field - jobFunctions"}
+{"level":30,"time":1749244017112,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Campo jobFunctions: Desenvolvedor"}
+{"level":30,"time":1749244017112,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Processando parte: field - birthday"}
+{"level":30,"time":1749244017112,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Campo birthday: 1990-01-15"}
+{"level":30,"time":1749244017112,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Processando parte: file - file"}
+{"level":30,"time":1749244017112,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Recebido arquivo: placeholder.jpg, mimetype: image/jpeg"}
+{"level":30,"time":1749244017113,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Arquivo lido com tamanho: 821 bytes"}
+{"level":30,"time":1749244017114,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Campos extraídos: fullName=João Silva, jobFunctions=Desenvolvedor, birthday=1990-01-15"}
+{"level":30,"time":1749244017114,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Iniciando validação..."}
+{"level":30,"time":1749244017114,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Validação concluída com sucesso."}
+{"level":30,"time":1749244017114,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Buffer já criado com tamanho: 821 bytes."}
+{"level":30,"time":1749244017114,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Iniciando upload para Cloudinary..."}
+{"level":30,"time":1749244017114,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Criando upload_stream do Cloudinary..."}
+{"level":30,"time":1749244017153,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Enviando buffer para upload_stream.end()..."}
+{"level":30,"time":1749244017154,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Buffer enviado para upload_stream.end(). Aguardando callback..."}
+{"level":30,"time":1749244018185,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Sucesso no callback do upload_stream Cloudinary."}
+{"level":30,"time":1749244018185,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Upload para Cloudinary concluído."}
+{"level":30,"time":1749244018185,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"URL da foto obtida: https://res.cloudinary.com/dp3uq8qv2/image/upload/v1749244017/maple-employees/fe5ibc9yrdvpcqid7nzx.jpg"}
+{"level":30,"time":1749244018185,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Iniciando inserção no banco de dados..."}
+{"level":30,"time":1749244019314,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Funcionário inserido no banco com ID: 1"}
+{"level":30,"time":1749244019314,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Enviando resposta de sucesso (201 Created)."}
+{"level":30,"time":1749244019316,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-1","res":{"statusCode":201},"responseTime":2211.572318971157,"msg":"request completed"}
+{"level":30,"time":1749247289261,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-2","req":{"method":"HEAD","url":"/employees","host":"4000-iwl22avpk45ekxnf43a4f-adced74b.manusvm.computer","remoteAddress":"10.201.56.1","remotePort":37982},"msg":"incoming request"}
+{"level":30,"time":1749247289270,"pid":23037,"hostname":"f07a69b5620a","msg":"Recebida requisição GET /employees (teste)"}
+{"level":30,"time":1749247289288,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-2","res":{"statusCode":200},"responseTime":17.62275403738022,"msg":"request completed"}
+{"level":30,"time":1749247289288,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-3","req":{"method":"HEAD","url":"/","host":"4000-iwl22avpk45ekxnf43a4f-adced74b.manusvm.computer","remoteAddress":"10.201.56.1","remotePort":37996},"msg":"incoming request"}
+{"level":30,"time":1749247289289,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-3","msg":"Route HEAD:/ not found"}
+{"level":30,"time":1749247289289,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-3","res":{"statusCode":404},"responseTime":0.4352239966392517,"msg":"request completed"}
+{"level":30,"time":1749247289308,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-4","req":{"method":"GET","url":"/","host":"4000-iwl22avpk45ekxnf43a4f-adced74b.manusvm.computer","remoteAddress":"10.201.56.1","remotePort":38012},"msg":"incoming request"}
+{"level":30,"time":1749247289308,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-4","msg":"Route GET:/ not found"}
+{"level":30,"time":1749247289308,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-4","res":{"statusCode":404},"responseTime":0.3870660066604614,"msg":"request completed"}
+{"level":30,"time":1749247514643,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-5","req":{"method":"GET","url":"/","host":"4000-iwl22avpk45ekxnf43a4f-adced74b.manusvm.computer","remoteAddress":"10.201.56.1","remotePort":59202},"msg":"incoming request"}
+{"level":30,"time":1749247514644,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-5","msg":"Route GET:/ not found"}
+{"level":30,"time":1749247514644,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-5","res":{"statusCode":404},"responseTime":0.6630679965019226,"msg":"request completed"}
+{"level":30,"time":1749247515106,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-6","req":{"method":"GET","url":"/favicon.ico","host":"4000-iwl22avpk45ekxnf43a4f-adced74b.manusvm.computer","remoteAddress":"10.201.56.1","remotePort":59204},"msg":"incoming request"}
+{"level":30,"time":1749247515106,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-6","msg":"Route GET:/favicon.ico not found"}
+{"level":30,"time":1749247515107,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-6","res":{"statusCode":404},"responseTime":0.5442320108413696,"msg":"request completed"}
+{"level":30,"time":1749247603626,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-7","req":{"method":"GET","url":"/employees","host":"4000-iwl22avpk45ekxnf43a4f-adced74b.manusvm.computer","remoteAddress":"10.201.56.1","remotePort":46246},"msg":"incoming request"}
+{"level":30,"time":1749247603626,"pid":23037,"hostname":"f07a69b5620a","msg":"Recebida requisição GET /employees (teste)"}
+{"level":30,"time":1749247603627,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-7","res":{"statusCode":200},"responseTime":0.7250880002975464,"msg":"request completed"}
+{"level":30,"time":1749247603795,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-8","req":{"method":"GET","url":"/favicon.ico","host":"4000-iwl22avpk45ekxnf43a4f-adced74b.manusvm.computer","remoteAddress":"10.201.56.1","remotePort":46262},"msg":"incoming request"}
+{"level":30,"time":1749247603795,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-8","msg":"Route GET:/favicon.ico not found"}
+{"level":30,"time":1749247603796,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-8","res":{"statusCode":404},"responseTime":0.6177049875259399,"msg":"request completed"}
+{"level":30,"time":1749247613355,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-9","req":{"method":"GET","url":"/health-check","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":35998},"msg":"incoming request"}
+{"level":30,"time":1749247613357,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-9","res":{"statusCode":200},"responseTime":1.6966779828071594,"msg":"request completed"}
+{"level":30,"time":1749247629264,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-a","req":{"method":"HEAD","url":"/health-check","host":"4000-iwl22avpk45ekxnf43a4f-adced74b.manusvm.computer","remoteAddress":"10.201.56.1","remotePort":46146},"msg":"incoming request"}
+{"level":30,"time":1749247629265,"pid":23037,"hostname":"f07a69b5620a","reqId":"req-a","res":{"statusCode":200},"responseTime":0.8160939812660217,"msg":"request completed"}
