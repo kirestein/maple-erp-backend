@@ -15,6 +15,13 @@ async function employeeRoutes(fastify, options) {
   fastify.post("/", async (request, reply) => {
     request.log.info("Recebida requisição POST /employees");
     try {
+      // Validação do Content-Type
+      if (!request.headers['content-type']?.includes('multipart/form-data')) {
+        request.log.warn("Validação falhou: Content-Type incorreto");
+        reply.code(400);
+        return { error: "Content-Type deve ser multipart/form-data para upload de arquivos" };
+      }
+      
       request.log.info("Processando multipart/form-data...");
       const parts = request.parts();
       
@@ -23,30 +30,36 @@ async function employeeRoutes(fastify, options) {
       let fileType;
       
       // Processar cada parte do multipart/form-data
-      for await (const part of parts) {
-        request.log.info(`Processando parte: ${part.type} - ${part.fieldname}`);
-        
-        if (part.type === 'file') {
-          // Processar arquivo
-          request.log.info(`Recebido arquivo: ${part.filename}, mimetype: ${part.mimetype}`);
-          fileType = part.mimetype;
+      try {
+        for await (const part of parts) {
+          request.log.info(`Processando parte: ${part.type} - ${part.fieldname}`);
           
-          // Ler o arquivo para um buffer usando toBuffer() em vez de iterar
-          fileBuffer = await part.toBuffer();
-          request.log.info(`Arquivo lido com tamanho: ${fileBuffer.length} bytes`);
-        } else {
-          // Processar campos de texto
-          const value = await part.value;
-          request.log.info(`Campo ${part.fieldname}: ${value}`);
-          
-          if (part.fieldname === 'fullName') {
-            fullName = value;
-          } else if (part.fieldname === 'jobFunctions') {
-            jobFunctions = value;
-          } else if (part.fieldname === 'birthday') {
-            birthday = value;
+          if (part.type === 'file') {
+            // Processar arquivo
+            request.log.info(`Recebido arquivo: ${part.filename}, mimetype: ${part.mimetype}`);
+            fileType = part.mimetype;
+            
+            // Ler o arquivo para um buffer usando toBuffer()
+            fileBuffer = await part.toBuffer();
+            request.log.info(`Arquivo lido com tamanho: ${fileBuffer.length} bytes`);
+          } else {
+            // Processar campos de texto
+            const value = await part.value;
+            request.log.info(`Campo ${part.fieldname}: ${value}`);
+            
+            if (part.fieldname === 'fullName') {
+              fullName = value;
+            } else if (part.fieldname === 'jobFunctions') {
+              jobFunctions = value;
+            } else if (part.fieldname === 'birthday') {
+              birthday = value;
+            }
           }
         }
+      } catch (err) {
+        request.log.error({ msg: "Erro ao processar multipart/form-data", error: err });
+        reply.code(400);
+        return { error: "Erro ao processar o formulário. Verifique se todos os campos estão corretos." };
       }
       
       request.log.info(`Campos extraídos: fullName=${fullName}, jobFunctions=${jobFunctions}, birthday=${birthday}`);
