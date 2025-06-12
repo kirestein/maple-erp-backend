@@ -50,7 +50,7 @@ async function employeeRoutes(fastify, options) {
                 partnerCpf: { type: "string" },
                 partnerBirthday: { type: "string", format: "date" },
                 partnerRg: { type: "string" },
-                employeePhoto: { type: "string" }, // base64 ou url
+                photoUrl: { type: "string" }, // agora é photoUrl
                 gender: { type: "string" },
                 maritalStatus: { type: "string" },
                 graduation: { type: "string" },
@@ -162,7 +162,7 @@ async function employeeRoutes(fastify, options) {
           partner_cpf AS "partnerCpf",
           partner_birthday AS "partnerBirthday",
           partner_rg AS "partnerRg",
-          encode(photo_url, 'base64') AS "employeePhoto",
+          photo_url AS "photoUrl",
           gender,
           marital_status AS "maritalStatus",
           graduation,
