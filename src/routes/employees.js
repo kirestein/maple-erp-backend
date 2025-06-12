@@ -162,7 +162,7 @@ async function employeeRoutes(fastify, options) {
           partner_cpf AS "partnerCpf",
           partner_birthday AS "partnerBirthday",
           partner_rg AS "partnerRg",
-          encode(employee_photo, 'base64') AS "employeePhoto",
+          encode(photo_url, 'base64') AS "employeePhoto",
           gender,
           marital_status AS "maritalStatus",
           graduation,
