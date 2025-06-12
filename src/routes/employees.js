@@ -5,11 +5,42 @@ const db = require("../config/db");
 async function employeeRoutes(fastify, options) {
   fastify.log.info("Registrando plugin employeeRoutes...");
 
-  // GET /employees - Test route
-  fastify.get("/", async (request, reply) => {
-    fastify.log.info("Recebida requisição GET /employees (teste)");
-    return { message: "GET /employees works!" }; // Keep the GET for testing plugin registration
-  });
+  // GET /employees - Retorna todos os funcionários do banco
+  fastify.get(
+    "/",
+    {
+      schema: {
+        summary: "Lista todos os funcionários",
+        response: {
+          200: {
+            description: "Lista de funcionários",
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                id: { type: "integer" },
+                fullName: { type: "string" },
+                jobFunctions: { type: "string" },
+                birthday: { type: "string", format: "date" },
+                photoUrl: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        const { rows } = await db.query(
+          "SELECT id, fullName, jobFunctions, birthday, photoUrl FROM employees"
+        );
+        return rows;
+      } catch (error) {
+        fastify.log.error(error);
+        reply.code(500).send({ error: "Erro ao buscar funcionários" });
+      }
+    }
+  );
 
   // POST /employees - Create a new employee with photo upload
   fastify.post("/", async (request, reply) => {
@@ -17,41 +48,47 @@ async function employeeRoutes(fastify, options) {
     try {
       request.log.info("Processando multipart/form-data...");
       const parts = request.parts();
-      
+
       let fullName, jobFunctions, birthday;
       let fileBuffer;
       let fileType;
-      
+
       // Processar cada parte do multipart/form-data
       for await (const part of parts) {
         request.log.info(`Processando parte: ${part.type} - ${part.fieldname}`);
-        
-        if (part.type === 'file') {
+
+        if (part.type === "file") {
           // Processar arquivo
-          request.log.info(`Recebido arquivo: ${part.filename}, mimetype: ${part.mimetype}`);
+          request.log.info(
+            `Recebido arquivo: ${part.filename}, mimetype: ${part.mimetype}`
+          );
           fileType = part.mimetype;
-          
+
           // Ler o arquivo para um buffer usando toBuffer() em vez de iterar
           fileBuffer = await part.toBuffer();
-          request.log.info(`Arquivo lido com tamanho: ${fileBuffer.length} bytes`);
+          request.log.info(
+            `Arquivo lido com tamanho: ${fileBuffer.length} bytes`
+          );
         } else {
           // Processar campos de texto
           const value = await part.value;
           request.log.info(`Campo ${part.fieldname}: ${value}`);
-          
-          if (part.fieldname === 'fullName') {
+
+          if (part.fieldname === "fullName") {
             fullName = value;
-          } else if (part.fieldname === 'jobFunctions') {
+          } else if (part.fieldname === "jobFunctions") {
             jobFunctions = value;
-          } else if (part.fieldname === 'birthday') {
+          } else if (part.fieldname === "birthday") {
             birthday = value;
           }
         }
       }
-      
-      request.log.info(`Campos extraídos: fullName=${fullName}, jobFunctions=${jobFunctions}, birthday=${birthday}`);
 
-      // --- 1. Validation --- 
+      request.log.info(
+        `Campos extraídos: fullName=${fullName}, jobFunctions=${jobFunctions}, birthday=${birthday}`
+      );
+
+      // --- 1. Validation ---
       request.log.info("Iniciando validação...");
       if (!fullName || !jobFunctions) {
         request.log.warn("Validação falhou: Campos obrigatórios faltando.");
@@ -65,47 +102,64 @@ async function employeeRoutes(fastify, options) {
       }
 
       if (!["image/jpeg", "image/png"].includes(fileType)) {
-        request.log.warn(`Validação falhou: Formato de arquivo inválido (${fileType}).`);
+        request.log.warn(
+          `Validação falhou: Formato de arquivo inválido (${fileType}).`
+        );
         reply.code(400);
-        return { error: "Formato de arquivo inválido. Apenas JPEG ou PNG são permitidos." };
+        return {
+          error:
+            "Formato de arquivo inválido. Apenas JPEG ou PNG são permitidos.",
+        };
       }
       request.log.info("Validação concluída com sucesso.");
 
-      // --- 2. Upload to Cloudinary --- 
-      request.log.info(`Buffer já criado com tamanho: ${fileBuffer.length} bytes.`);
+      // --- 2. Upload to Cloudinary ---
+      request.log.info(
+        `Buffer já criado com tamanho: ${fileBuffer.length} bytes.`
+      );
 
       request.log.info("Iniciando upload para Cloudinary...");
       const cloudinaryResult = await new Promise((resolve, reject) => {
         request.log.info("Criando upload_stream do Cloudinary...");
         const uploadStream = cloudinary.uploader.upload_stream(
           {
-            folder: "maple-employees", 
+            folder: "maple-employees",
           },
           (error, result) => {
             if (error) {
-              request.log.error({ msg: "Erro no callback do upload_stream Cloudinary", error: error }); // Log the full error object
+              request.log.error({
+                msg: "Erro no callback do upload_stream Cloudinary",
+                error: error,
+              }); // Log the full error object
               reject(error);
             } else {
-              request.log.info("Sucesso no callback do upload_stream Cloudinary.");
+              request.log.info(
+                "Sucesso no callback do upload_stream Cloudinary."
+              );
               resolve(result);
             }
           }
         );
         request.log.info("Enviando buffer para upload_stream.end()...");
         uploadStream.end(fileBuffer);
-        request.log.info("Buffer enviado para upload_stream.end(). Aguardando callback...");
+        request.log.info(
+          "Buffer enviado para upload_stream.end(). Aguardando callback..."
+        );
       });
       request.log.info("Upload para Cloudinary concluído.");
 
       if (!cloudinaryResult || !cloudinaryResult.secure_url) {
-        request.log.error("Falha no resultado do upload para o Cloudinary:", cloudinaryResult);
+        request.log.error(
+          "Falha no resultado do upload para o Cloudinary:",
+          cloudinaryResult
+        );
         throw new Error("Falha no upload para o Cloudinary");
       }
 
       const photoUrl = cloudinaryResult.secure_url;
       request.log.info(`URL da foto obtida: ${photoUrl}`);
 
-      // --- 3. Save to Database --- 
+      // --- 3. Save to Database ---
       request.log.info("Iniciando inserção no banco de dados...");
       const insertQuery = `
         INSERT INTO employees (full_name, job_functions, birthday, photo_url)
@@ -116,27 +170,31 @@ async function employeeRoutes(fastify, options) {
 
       const dbResult = await db.query(insertQuery, values);
       const newEmployee = dbResult.rows[0];
-      request.log.info(`Funcionário inserido no banco com ID: ${newEmployee.id}`);
+      request.log.info(
+        `Funcionário inserido no banco com ID: ${newEmployee.id}`
+      );
 
-      // --- 4. Return Success Response --- 
+      // --- 4. Return Success Response ---
       request.log.info("Enviando resposta de sucesso (201 Created).");
-      reply.code(201); 
+      reply.code(201);
       return newEmployee;
-
     } catch (error) {
-      request.log.error({ 
-        msg: "Erro geral ao criar funcionário", 
-        error_message: error.message, 
-        error_code: error.code, 
-        error_detail: error.detail, 
-        error_stack: error.stack 
+      request.log.error({
+        msg: "Erro geral ao criar funcionário",
+        error_message: error.message,
+        error_code: error.code,
+        error_detail: error.detail,
+        error_stack: error.stack,
       }); // Log specific properties of the DB error
       if (error.message.includes("Cloudinary")) {
         reply.code(500);
         return { error: "Erro interno ao fazer upload da imagem." };
-      } else if (error.code === "23505") { 
-        reply.code(409); 
-        return { error: "Erro ao salvar no banco de dados: Dados duplicados.", detail: error.detail };
+      } else if (error.code === "23505") {
+        reply.code(409);
+        return {
+          error: "Erro ao salvar no banco de dados: Dados duplicados.",
+          detail: error.detail,
+        };
       } else {
         reply.code(500);
         return { error: "Erro interno do servidor ao processar a requisição." };
@@ -148,4 +206,3 @@ async function employeeRoutes(fastify, options) {
 }
 
 module.exports = employeeRoutes;
-
