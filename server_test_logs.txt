@@ -1,0 +1,110 @@
+
+> mbj_erp_backend@1.0.0 start
+> node server.js
+
+{"level":30,"time":1750151780524,"pid":38180,"hostname":"f07a69b5620a","msg":"Registrando plugin healthRoutes..."}
+{"level":30,"time":1750151780525,"pid":38180,"hostname":"f07a69b5620a","msg":"Plugin healthRoutes registrado com sucesso."}
+{"level":30,"time":1750151780526,"pid":38180,"hostname":"f07a69b5620a","msg":"Registrando plugin employeeRoutes..."}
+{"level":30,"time":1750151780527,"pid":38180,"hostname":"f07a69b5620a","msg":"Plugin employeeRoutes registrado com sucesso."}
+{"level":30,"time":1750151780709,"pid":38180,"hostname":"f07a69b5620a","msg":"Server listening at http://127.0.0.1:4000"}
+{"level":30,"time":1750151780709,"pid":38180,"hostname":"f07a69b5620a","msg":"Server listening at http://169.254.0.21:4000"}
+{"level":30,"time":1750151780710,"pid":38180,"hostname":"f07a69b5620a","msg":"Servidor ouvindo na porta 4000 (host: 0.0.0.0)"}
+{"level":30,"time":1750151780710,"pid":38180,"hostname":"f07a69b5620a","msg":"Ambiente: development"}
+{"level":30,"time":1750151789617,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-1","req":{"method":"GET","url":"/health-check","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":46504},"msg":"incoming request"}
+{"level":30,"time":1750151789619,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-1","method":"GET","url":"/health-check","headers":{"host":"localhost:4000","user-agent":"curl/7.81.0","accept":"*/*"},"userAgent":"curl/7.81.0","msg":"Incoming request"}
+{"level":30,"time":1750151789619,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Recebida requisição GET /health-check"}
+{"level":50,"time":1750151789781,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Database health check failed:"}
+{"level":30,"time":1750151789784,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-1","res":{"statusCode":503},"responseTime":166.10943794250488,"msg":"request completed"}
+{"level":30,"time":1750151796449,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-2","req":{"method":"GET","url":"/health-check","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":46512},"msg":"incoming request"}
+{"level":30,"time":1750151796449,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-2","method":"GET","url":"/health-check","headers":{"host":"localhost:4000","user-agent":"curl/7.81.0","accept":"*/*"},"userAgent":"curl/7.81.0","msg":"Incoming request"}
+{"level":30,"time":1750151796449,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-2","msg":"Recebida requisição GET /health-check"}
+{"level":50,"time":1750151796528,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-2","msg":"Database health check failed:"}
+{"level":30,"time":1750151796529,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-2","res":{"statusCode":503},"responseTime":79.98347806930542,"msg":"request completed"}
+{"level":30,"time":1750151802460,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-3","req":{"method":"POST","url":"/employees","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":50792},"msg":"incoming request"}
+{"level":30,"time":1750151802462,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-3","method":"POST","url":"/employees","headers":{"host":"localhost:4000","user-agent":"curl/7.81.0","accept":"*/*","content-type":"application/json","content-length":"16"},"userAgent":"curl/7.81.0","msg":"Incoming request"}
+{"level":30,"time":1750151802463,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-3","msg":"Recebida requisição POST /employees"}
+{"level":40,"time":1750151802463,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-3","msg":"Validação falhou: Content-Type incorreto (application/json)"}
+{"level":30,"time":1750151802463,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-3","res":{"statusCode":400},"responseTime":3.5341360569000244,"msg":"request completed"}
+{"level":30,"time":1750151809149,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-4","req":{"method":"OPTIONS","url":"/employees","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":54960},"msg":"incoming request"}
+{"level":30,"time":1750151809150,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-4","res":{"statusCode":200},"responseTime":0.5701079368591309,"msg":"request completed"}
+{"level":30,"time":1750151815661,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-5","req":{"method":"OPTIONS","url":"/employees","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":54972},"msg":"incoming request"}
+{"level":30,"time":1750151815661,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-5","res":{"statusCode":200},"responseTime":0.4607560634613037,"msg":"request completed"}
+{"level":30,"time":1750151821659,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-6","req":{"method":"HEAD","url":"/health-check","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":45412},"msg":"incoming request"}
+{"level":30,"time":1750151821659,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-6","method":"HEAD","url":"/health-check","headers":{"host":"localhost:4000","user-agent":"curl/7.81.0","accept":"*/*","origin":"http://localhost:3000"},"userAgent":"curl/7.81.0","msg":"Incoming request"}
+{"level":30,"time":1750151821659,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-6","msg":"Recebida requisição GET /health-check"}
+{"level":50,"time":1750151821750,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-6","msg":"Database health check failed:"}
+{"level":30,"time":1750151821751,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-6","res":{"statusCode":503},"responseTime":92.474604845047,"msg":"request completed"}
+{"level":30,"time":1750151827812,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","req":{"method":"POST","url":"/employees","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":52370},"msg":"incoming request"}
+{"level":30,"time":1750151827812,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","method":"POST","url":"/employees","headers":{"host":"localhost:4000","user-agent":"curl/7.81.0","accept":"*/*","content-length":"9207","content-type":"multipart/form-data; boundary=------------------------56bada4df9b60a7a"},"userAgent":"curl/7.81.0","msg":"Incoming request"}
+{"level":30,"time":1750151827812,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Recebida requisição POST /employees"}
+{"level":30,"time":1750151827812,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Processando multipart/form-data..."}
+{"level":30,"time":1750151827817,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Processando parte: field - fullName"}
+{"level":30,"time":1750151827817,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Campo fullName: Test User"}
+{"level":30,"time":1750151827817,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Processando parte: field - jobFunctions"}
+{"level":30,"time":1750151827817,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Campo jobFunctions: Test Job"}
+{"level":30,"time":1750151827817,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Processando parte: field - birthday"}
+{"level":30,"time":1750151827817,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Campo birthday: 1990-01-01"}
+{"level":30,"time":1750151827817,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Processando parte: file - file"}
+{"level":30,"time":1750151827817,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Recebido arquivo: image.png, mimetype: image/png"}
+{"level":30,"time":1750151827818,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Arquivo lido com tamanho: 8699 bytes"}
+{"level":30,"time":1750151827819,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Campos extraídos: fullName=Test User, jobFunctions=Test Job, birthday=1990-01-01"}
+{"level":30,"time":1750151827819,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Iniciando validação..."}
+{"level":30,"time":1750151827819,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Validação concluída com sucesso."}
+{"level":30,"time":1750151827819,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Buffer já criado com tamanho: 8699 bytes."}
+{"level":30,"time":1750151827819,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Iniciando upload para Cloudinary..."}
+{"level":30,"time":1750151827819,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Criando upload_stream do Cloudinary..."}
+{"level":30,"time":1750151827826,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Enviando buffer para upload_stream.end()..."}
+{"level":30,"time":1750151827827,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Buffer enviado para upload_stream.end(). Aguardando callback..."}
+{"level":30,"time":1750151828319,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Sucesso no callback do upload_stream Cloudinary."}
+{"level":30,"time":1750151828320,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Upload para Cloudinary concluído."}
+{"level":30,"time":1750151828320,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"URL da foto obtida: https://res.cloudinary.com/dp3uq8qv2/image/upload/v1750151827/maple-employees/employee_1750151827819.png"}
+{"level":30,"time":1750151828320,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Iniciando inserção no banco de dados..."}
+{"level":50,"time":1750151828420,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","msg":"Erro geral ao criar funcionário","error_message":"password authentication failed for user 'kirestein'","error_code":"XX000","error_stack":"error: password authentication failed for user 'kirestein'\n    at /home/ubuntu/maple-erp-backend/node_modules/pg-pool/index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async Object.<anonymous> (/home/ubuntu/maple-erp-backend/src/routes/employees.js:229:24)"}
+{"level":30,"time":1750151828421,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-7","res":{"statusCode":500},"responseTime":609.333633184433,"msg":"request completed"}
+{"level":30,"time":1750151840242,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-8","req":{"method":"POST","url":"/employees","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":60814},"msg":"incoming request"}
+{"level":30,"time":1750151840242,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-8","method":"POST","url":"/employees","headers":{"host":"localhost:4000","user-agent":"curl/7.81.0","accept":"*/*","content-length":"9091","content-type":"multipart/form-data; boundary=------------------------b7de44391416ec3a"},"userAgent":"curl/7.81.0","msg":"Incoming request"}
+{"level":30,"time":1750151840242,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-8","msg":"Recebida requisição POST /employees"}
+{"level":30,"time":1750151840242,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-8","msg":"Processando multipart/form-data..."}
+{"level":30,"time":1750151840243,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-8","msg":"Processando parte: field - fullName"}
+{"level":40,"time":1750151840243,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-8","msg":"Campo fullName está vazio"}
+{"level":30,"time":1750151840243,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-8","msg":"Processando parte: field - jobFunctions"}
+{"level":30,"time":1750151840243,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-8","msg":"Campo jobFunctions: Test Job"}
+{"level":30,"time":1750151840244,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-8","msg":"Processando parte: file - file"}
+{"level":30,"time":1750151840244,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-8","msg":"Recebido arquivo: image.png, mimetype: image/png"}
+{"level":30,"time":1750151840244,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-8","msg":"Arquivo lido com tamanho: 8699 bytes"}
+{"level":30,"time":1750151840244,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-8","msg":"Campos extraídos: fullName=undefined, jobFunctions=Test Job, birthday=undefined"}
+{"level":30,"time":1750151840244,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-8","msg":"Iniciando validação..."}
+{"level":40,"time":1750151840244,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-8","msg":"Validação falhou: Campos obrigatórios faltando."}
+{"level":30,"time":1750151840244,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-8","res":{"statusCode":400},"responseTime":2.19760799407959,"msg":"request completed"}
+{"level":30,"time":1750151846350,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-9","req":{"method":"POST","url":"/employees","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":60828},"msg":"incoming request"}
+{"level":30,"time":1750151846350,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-9","method":"POST","url":"/employees","headers":{"host":"localhost:4000","user-agent":"curl/7.81.0","accept":"*/*","content-length":"9092","content-type":"multipart/form-data; boundary=------------------------688c0e29eb195b97"},"userAgent":"curl/7.81.0","msg":"Incoming request"}
+{"level":30,"time":1750151846350,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-9","msg":"Recebida requisição POST /employees"}
+{"level":30,"time":1750151846350,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-9","msg":"Processando multipart/form-data..."}
+{"level":30,"time":1750151846351,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-9","msg":"Processando parte: field - fullName"}
+{"level":30,"time":1750151846351,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-9","msg":"Campo fullName: A"}
+{"level":50,"time":1750151846351,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-9","msg":"Erro ao processar multipart/form-data","error":"Nome deve ter entre 2 e 100 caracteres"}
+{"level":30,"time":1750151846352,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-9","res":{"statusCode":400},"responseTime":1.9582819938659668,"msg":"request completed"}
+{"level":30,"time":1750151853387,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-a","req":{"method":"POST","url":"/employees","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":42912},"msg":"incoming request"}
+{"level":30,"time":1750151853388,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-a","method":"POST","url":"/employees","headers":{"host":"localhost:4000","user-agent":"curl/7.81.0","accept":"*/*","content-length":"9207","content-type":"multipart/form-data; boundary=------------------------022e39e7f6aeaa78"},"userAgent":"curl/7.81.0","msg":"Incoming request"}
+{"level":30,"time":1750151853388,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-a","msg":"Recebida requisição POST /employees"}
+{"level":30,"time":1750151853388,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-a","msg":"Processando multipart/form-data..."}
+{"level":30,"time":1750151853390,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-a","msg":"Processando parte: field - fullName"}
+{"level":30,"time":1750151853390,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-a","msg":"Campo fullName: Test User"}
+{"level":30,"time":1750151853390,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-a","msg":"Processando parte: field - jobFunctions"}
+{"level":30,"time":1750151853390,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-a","msg":"Campo jobFunctions: Test Job"}
+{"level":30,"time":1750151853390,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-a","msg":"Processando parte: field - birthday"}
+{"level":30,"time":1750151853390,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-a","msg":"Campo birthday: 2030-01-01"}
+{"level":50,"time":1750151853390,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-a","msg":"Erro ao processar multipart/form-data","error":"Data de nascimento não pode ser futura"}
+{"level":30,"time":1750151853392,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-a","res":{"statusCode":400},"responseTime":4.25891900062561,"msg":"request completed"}
+{"level":30,"time":1750151864015,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-b","req":{"method":"POST","url":"/employees","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":39844},"msg":"incoming request"}
+{"level":30,"time":1750151864015,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-b","method":"POST","url":"/employees","headers":{"host":"localhost:4000","user-agent":"curl/7.81.0","accept":"*/*","content-length":"9209","content-type":"multipart/form-data; boundary=------------------------d2d89cb4d7b6f85b"},"userAgent":"curl/7.81.0","msg":"Incoming request"}
+{"level":30,"time":1750151864015,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-b","msg":"Recebida requisição POST /employees"}
+{"level":30,"time":1750151864015,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-b","msg":"Processando multipart/form-data..."}
+{"level":30,"time":1750151864016,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-b","msg":"Processando parte: field - fullName"}
+{"level":30,"time":1750151864016,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-b","msg":"Campo fullName: Test User"}
+{"level":30,"time":1750151864017,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-b","msg":"Processando parte: field - jobFunctions"}
+{"level":30,"time":1750151864017,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-b","msg":"Campo jobFunctions: Test Job"}
+{"level":30,"time":1750151864017,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-b","msg":"Processando parte: field - birthday"}
+{"level":30,"time":1750151864017,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-b","msg":"Campo birthday: invalid-date"}
+{"level":50,"time":1750151864017,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-b","msg":"Erro ao processar multipart/form-data","error":"Data de nascimento deve estar no formato YYYY-MM-DD"}
+{"level":30,"time":1750151864017,"pid":38180,"hostname":"f07a69b5620a","reqId":"req-b","res":{"statusCode":400},"responseTime":2.002824068069458,"msg":"request completed"}

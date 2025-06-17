@@ -1,0 +1,9 @@
+{"level":30,"time":1749258226722,"pid":33898,"hostname":"f07a69b5620a","msg":"Registrando plugin employeeRoutes..."}
+{"level":30,"time":1749258226723,"pid":33898,"hostname":"f07a69b5620a","msg":"Plugin employeeRoutes registrado com sucesso."}
+{"level":30,"time":1749258226732,"pid":33898,"hostname":"f07a69b5620a","msg":"Server listening at http://127.0.0.1:4000"}
+{"level":30,"time":1749258226732,"pid":33898,"hostname":"f07a69b5620a","msg":"Server listening at http://169.254.0.21:4000"}
+{"level":30,"time":1749258226732,"pid":33898,"hostname":"f07a69b5620a","msg":"Servidor ouvindo na porta 4000"}
+{"level":30,"time":1749258238999,"pid":33898,"hostname":"f07a69b5620a","reqId":"req-1","req":{"method":"POST","url":"/employees","host":"localhost:4000","remoteAddress":"127.0.0.1","remotePort":40644},"msg":"incoming request"}
+{"level":30,"time":1749258239003,"pid":33898,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Recebida requisição POST /employees"}
+{"level":40,"time":1749258239003,"pid":33898,"hostname":"f07a69b5620a","reqId":"req-1","msg":"Validação falhou: Content-Type incorreto"}
+{"level":30,"time":1749258239007,"pid":33898,"hostname":"f07a69b5620a","reqId":"req-1","res":{"statusCode":400},"responseTime":6.857989013195038,"msg":"request completed"}

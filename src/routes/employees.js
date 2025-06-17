@@ -12,14 +12,51 @@ async function employeeRoutes(fastify, options) {
   });
 
   // POST /employees - Create a new employee with photo upload
-  fastify.post("/", async (request, reply) => {
+  fastify.post("/", {
+    schema: {
+      consumes: ['multipart/form-data'],
+      description: 'Create a new employee with photo upload',
+      tags: ['employees'],
+      response: {
+        201: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            full_name: { type: 'string' },
+            job_functions: { type: 'string' },
+            birthday: { type: 'string', format: 'date' },
+            photo_url: { type: 'string', format: 'uri' },
+            created_at: { type: 'string', format: 'date-time' }
+          }
+        },
+        400: {
+          type: 'object',
+          properties: {
+            error: { type: 'string' },
+            message: { type: 'string' }
+          }
+        },
+        500: {
+          type: 'object',
+          properties: {
+            error: { type: 'string' },
+            message: { type: 'string' }
+          }
+        }
+      }
+    }
+  }, async (request, reply) => {
     request.log.info("Recebida requisição POST /employees");
     try {
-      // Validação do Content-Type
-      if (!request.headers['content-type']?.includes('multipart/form-data')) {
-        request.log.warn("Validação falhou: Content-Type incorreto");
+      // Validação do Content-Type melhorada
+      const contentType = request.headers['content-type'];
+      if (!contentType || !contentType.includes('multipart/form-data')) {
+        request.log.warn(`Validação falhou: Content-Type incorreto (${contentType})`);
         reply.code(400);
-        return { error: "Content-Type deve ser multipart/form-data para upload de arquivos" };
+        return { 
+          error: "Invalid Content-Type", 
+          message: "Content-Type deve ser multipart/form-data para upload de arquivos" 
+        };
       }
       
       request.log.info("Processando multipart/form-data...");
@@ -28,6 +65,7 @@ async function employeeRoutes(fastify, options) {
       let fullName, jobFunctions, birthday;
       let fileBuffer;
       let fileType;
+      let fileName;
       
       // Processar cada parte do multipart/form-data
       try {
@@ -35,31 +73,77 @@ async function employeeRoutes(fastify, options) {
           request.log.info(`Processando parte: ${part.type} - ${part.fieldname}`);
           
           if (part.type === 'file') {
-            // Processar arquivo
+            // Validações adicionais para arquivo
+            if (!part.filename) {
+              throw new Error("Nome do arquivo não fornecido");
+            }
+            
+            // Validar extensão do arquivo
+            const allowedExtensions = ['.jpg', '.jpeg', '.png'];
+            const fileExtension = part.filename.toLowerCase().substring(part.filename.lastIndexOf('.'));
+            if (!allowedExtensions.includes(fileExtension)) {
+              throw new Error(`Extensão de arquivo não permitida: ${fileExtension}. Permitidas: ${allowedExtensions.join(', ')}`);
+            }
+            
             request.log.info(`Recebido arquivo: ${part.filename}, mimetype: ${part.mimetype}`);
             fileType = part.mimetype;
+            fileName = part.filename;
             
             // Ler o arquivo para um buffer usando toBuffer()
             fileBuffer = await part.toBuffer();
+            
+            // Validar tamanho do arquivo (máximo 5MB)
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (fileBuffer.length > maxSize) {
+              throw new Error(`Arquivo muito grande: ${fileBuffer.length} bytes. Máximo permitido: ${maxSize} bytes`);
+            }
+            
             request.log.info(`Arquivo lido com tamanho: ${fileBuffer.length} bytes`);
           } else {
-            // Processar campos de texto
+            // Processar campos de texto com validação
             const value = await part.value;
+            
+            // Validar se o valor não está vazio
+            if (!value || value.trim() === '') {
+              request.log.warn(`Campo ${part.fieldname} está vazio`);
+              continue;
+            }
+            
             request.log.info(`Campo ${part.fieldname}: ${value}`);
             
             if (part.fieldname === 'fullName') {
-              fullName = value;
+              // Validar nome (mínimo 2 caracteres, máximo 100)
+              if (value.trim().length < 2 || value.trim().length > 100) {
+                throw new Error("Nome deve ter entre 2 e 100 caracteres");
+              }
+              fullName = value.trim();
             } else if (part.fieldname === 'jobFunctions') {
-              jobFunctions = value;
+              // Validar cargo (mínimo 2 caracteres, máximo 100)
+              if (value.trim().length < 2 || value.trim().length > 100) {
+                throw new Error("Cargo deve ter entre 2 e 100 caracteres");
+              }
+              jobFunctions = value.trim();
             } else if (part.fieldname === 'birthday') {
+              // Validar formato de data (YYYY-MM-DD)
+              const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+              if (value && !dateRegex.test(value)) {
+                throw new Error("Data de nascimento deve estar no formato YYYY-MM-DD");
+              }
+              // Validar se a data não é futura
+              if (value && new Date(value) > new Date()) {
+                throw new Error("Data de nascimento não pode ser futura");
+              }
               birthday = value;
             }
           }
         }
       } catch (err) {
-        request.log.error({ msg: "Erro ao processar multipart/form-data", error: err });
+        request.log.error({ msg: "Erro ao processar multipart/form-data", error: err.message });
         reply.code(400);
-        return { error: "Erro ao processar o formulário. Verifique se todos os campos estão corretos." };
+        return { 
+          error: "Form Processing Error", 
+          message: err.message || "Erro ao processar o formulário. Verifique se todos os campos estão corretos." 
+        };
       }
       
       request.log.info(`Campos extraídos: fullName=${fullName}, jobFunctions=${jobFunctions}, birthday=${birthday}`);
@@ -69,18 +153,27 @@ async function employeeRoutes(fastify, options) {
       if (!fullName || !jobFunctions) {
         request.log.warn("Validação falhou: Campos obrigatórios faltando.");
         reply.code(400);
-        return { error: "Campos obrigatórios (nome, cargo) faltando." };
+        return { 
+          error: "Missing Required Fields", 
+          message: "Campos obrigatórios (nome, cargo) faltando." 
+        };
       }
       if (!fileBuffer) {
         request.log.warn("Validação falhou: Arquivo de foto faltando.");
         reply.code(400);
-        return { error: "Arquivo de foto obrigatório faltando." };
+        return { 
+          error: "Missing File", 
+          message: "Arquivo de foto obrigatório faltando." 
+        };
       }
 
       if (!["image/jpeg", "image/png"].includes(fileType)) {
         request.log.warn(`Validação falhou: Formato de arquivo inválido (${fileType}).`);
         reply.code(400);
-        return { error: "Formato de arquivo inválido. Apenas JPEG ou PNG são permitidos." };
+        return { 
+          error: "Invalid File Format", 
+          message: "Formato de arquivo inválido. Apenas JPEG ou PNG são permitidos." 
+        };
       }
       request.log.info("Validação concluída com sucesso.");
 
@@ -92,7 +185,13 @@ async function employeeRoutes(fastify, options) {
         request.log.info("Criando upload_stream do Cloudinary...");
         const uploadStream = cloudinary.uploader.upload_stream(
           {
-            folder: "maple-employees", 
+            folder: "maple-employees",
+            public_id: `employee_${Date.now()}`, // Unique identifier
+            transformation: [
+              { width: 500, height: 500, crop: "limit" }, // Resize if larger than 500x500
+              { quality: "auto" }, // Optimize quality
+              { format: "jpg" } // Convert to JPG for consistency
+            ]
           },
           (error, result) => {
             if (error) {
@@ -144,15 +243,33 @@ async function employeeRoutes(fastify, options) {
         error_detail: error.detail, 
         error_stack: error.stack 
       }); // Log specific properties of the DB error
+      
       if (error.message.includes("Cloudinary")) {
         reply.code(500);
-        return { error: "Erro interno ao fazer upload da imagem." };
+        return { 
+          error: "Upload Error", 
+          message: "Erro interno ao fazer upload da imagem." 
+        };
       } else if (error.code === "23505") { 
         reply.code(409); 
-        return { error: "Erro ao salvar no banco de dados: Dados duplicados.", detail: error.detail };
+        return { 
+          error: "Duplicate Data", 
+          message: "Erro ao salvar no banco de dados: Dados duplicados.", 
+          detail: error.detail 
+        };
+      } else if (error.code && error.code.startsWith("23")) { // Other DB constraint errors
+        reply.code(400);
+        return { 
+          error: "Database Constraint Error", 
+          message: "Erro de validação no banco de dados.", 
+          detail: error.detail 
+        };
       } else {
         reply.code(500);
-        return { error: "Erro interno do servidor ao processar a requisição." };
+        return { 
+          error: "Internal Server Error", 
+          message: "Erro interno do servidor ao processar a requisição." 
+        };
       }
     }
   });
