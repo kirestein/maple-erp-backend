@@ -15,12 +15,17 @@ fastify.register(require("@fastify/cors"), {
       'http://localhost:5173',
       'http://127.0.0.1:3000',
       'http://127.0.0.1:3001',
-      'http://127.0.0.1:5173'
+      'http://127.0.0.1:5173',
+      // Production frontend URLs
+      'https://mbjerp.netlify.app',
+      'https://maple-erp-frontend.netlify.app'
     ];
     
-    // In production, add your frontend domain
+    // In production, add your frontend domain from environment variable
     if (process.env.NODE_ENV === 'production') {
-      allowedOrigins.push(process.env.FRONTEND_URL || 'https://your-frontend-domain.com');
+      if (process.env.FRONTEND_URL) {
+        allowedOrigins.push(process.env.FRONTEND_URL);
+      }
     }
     
     // Allow requests without origin (mobile apps, Postman, etc.)
