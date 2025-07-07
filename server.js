@@ -73,6 +73,38 @@ fastify.addHook('preHandler', async (request, reply) => {
 fastify.register(require("./src/routes/health"));
 fastify.register(require("./src/routes/employees"), { prefix: "/employees" });
 
+// Endpoint para servir template do crachá
+fastify.get('/template-cracha', async (request, reply) => {
+  const fs = require('fs');
+  const path = require('path');
+  
+  try {
+    request.log.info('Servindo template do crachá');
+    
+    const imagePath = path.join(__dirname, 'template_cracha.png');
+    
+    // Verificar se arquivo existe
+    if (!fs.existsSync(imagePath)) {
+      request.log.error('Template do crachá não encontrado:', imagePath);
+      reply.code(404);
+      return { error: 'Template do crachá não encontrado' };
+    }
+    
+    const imageBuffer = fs.readFileSync(imagePath);
+    
+    reply
+      .type('image/png')
+      .header('Cache-Control', 'public, max-age=86400') // Cache por 1 dia
+      .header('Access-Control-Allow-Origin', '*') // Permitir acesso de qualquer origem para imagens
+      .send(imageBuffer);
+      
+  } catch (error) {
+    request.log.error('Erro ao servir template do crachá:', error);
+    reply.code(500);
+    return { error: 'Erro interno do servidor' };
+  }
+});
+
 // Enhanced error handler
 fastify.setErrorHandler(function (error, request, reply) {
   // Log error with more context
