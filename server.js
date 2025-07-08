@@ -61,7 +61,7 @@ fastify.register(require("@fastify/multipart"), {
 });
 
 // Add request validation middleware
-fastify.addHook('preHandler', async (request, reply) => {
+fastify.addHook('preHandler', async (request) => {
   // Log all incoming requests for debugging
   request.log.info({
     method: request.method,

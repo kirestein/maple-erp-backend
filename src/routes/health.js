@@ -1,5 +1,5 @@
 // src/routes/health.js
-async function healthRoutes(fastify, options) {
+async function healthRoutes(fastify) {
   fastify.log.info("Registrando plugin healthRoutes...");
 
   // GET /health-check - Health check endpoint

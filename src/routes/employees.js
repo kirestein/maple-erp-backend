@@ -3,7 +3,7 @@ const cloudinary = require("../config/cloudinary");
 const db = require("../config/db");
 const pdfService = require("../services/pdf.service");
 
-async function employeeRoutes(fastify, options) {
+async function employeeRoutes(fastify) {
   fastify.log.info("Registrando plugin employeeRoutes...");
 
   // GET /employees - Retorna todos os funcionários do banco
@@ -287,8 +287,6 @@ async function employeeRoutes(fastify, options) {
       let fullName, tagName, tagLastName, jobFunctions, birthday;
       let fileBuffer;
       let fileType;
-
-      let fileName;
       
       // Processar cada parte do multipart/form-data
       try {
@@ -310,7 +308,6 @@ async function employeeRoutes(fastify, options) {
             
             request.log.info(`Recebido arquivo: ${part.filename}, mimetype: ${part.mimetype}`);
             fileType = part.mimetype;
-            fileName = part.filename;
             
             // Ler o arquivo para um buffer usando toBuffer()
             fileBuffer = await part.toBuffer();
@@ -683,43 +680,43 @@ async function employeeRoutes(fastify, options) {
         let paramCount = 1;
         
         if (updateData.fullName) {
-          updateFields.push(`full_name = ${paramCount}`);
+          updateFields.push(`full_name = $${paramCount}`);
           updateValues.push(updateData.fullName);
           paramCount++;
         }
         
         if (updateData.jobFunctions) {
-          updateFields.push(`job_functions = ${paramCount}`);
+          updateFields.push(`job_functions = $${paramCount}`);
           updateValues.push(updateData.jobFunctions);
           paramCount++;
         }
         
         if (updateData.birthday) {
-          updateFields.push(`birthday = ${paramCount}`);
+          updateFields.push(`birthday = $${paramCount}`);
           updateValues.push(updateData.birthday);
           paramCount++;
         }
         
         if (updateData.email) {
-          updateFields.push(`email = ${paramCount}`);
+          updateFields.push(`email = $${paramCount}`);
           updateValues.push(updateData.email);
           paramCount++;
         }
         
         if (updateData.phone) {
-          updateFields.push(`phone = ${paramCount}`);
+          updateFields.push(`phone = $${paramCount}`);
           updateValues.push(updateData.phone);
           paramCount++;
         }
         
         if (updateData.mobile) {
-          updateFields.push(`mobile = ${paramCount}`);
+          updateFields.push(`mobile = $${paramCount}`);
           updateValues.push(updateData.mobile);
           paramCount++;
         }
         
         if (updateData.status) {
-          updateFields.push(`status = ${paramCount}`);
+          updateFields.push(`status = $${paramCount}`);
           updateValues.push(updateData.status);
           paramCount++;
         }
@@ -739,7 +736,7 @@ async function employeeRoutes(fastify, options) {
         const updateQuery = `
           UPDATE employees 
           SET ${updateFields.join(', ')}
-          WHERE id = ${paramCount}
+          WHERE id = $${paramCount}
           RETURNING id, full_name AS "fullName", job_functions AS "jobFunctions", updated_at AS "updatedAt"
         `;
         
@@ -876,19 +873,19 @@ async function employeeRoutes(fastify, options) {
         let paramCount = 1;
         
         if (name) {
-          whereConditions.push(`full_name ILIKE ${paramCount}`);
+          whereConditions.push(`full_name ILIKE $${paramCount}`);
           queryParams.push(`%${name}%`);
           paramCount++;
         }
         
         if (jobFunction) {
-          whereConditions.push(`job_functions ILIKE ${paramCount}`);
+          whereConditions.push(`job_functions ILIKE $${paramCount}`);
           queryParams.push(`%${jobFunction}%`);
           paramCount++;
         }
         
         if (status) {
-          whereConditions.push(`status = ${paramCount}`);
+          whereConditions.push(`status = $${paramCount}`);
           queryParams.push(status);
           paramCount++;
         }
@@ -914,7 +911,7 @@ async function employeeRoutes(fastify, options) {
           FROM employees 
           ${whereClause}
           ORDER BY full_name
-          LIMIT ${paramCount} OFFSET ${paramCount + 1}
+          LIMIT $${paramCount} OFFSET $${paramCount + 1}
         `;
         
         queryParams.push(limit, offset);
@@ -1176,14 +1173,14 @@ async function employeeRoutes(fastify, options) {
           
           const csvRows = rows.map(row => [
             row.id,
-            `"${row.full_name || ''}"`,,
-            `"${row.job_functions || ''}"`,,
-            `"${row.email || ''}"`,,
-            `"${row.phone || ''}"`,,
-            `"${row.mobile || ''}"`,,
-            `"${row.cpf || ''}"`,,
-            `"${row.rg || ''}"`,,
-            `"${row.status || ''}"`,,
+            `"${row.full_name || ''}"`,
+            `"${row.job_functions || ''}"`,
+            `"${row.email || ''}"`,
+            `"${row.phone || ''}"`,
+            `"${row.mobile || ''}"`,
+            `"${row.cpf || ''}"`,
+            `"${row.rg || ''}"`,
+            `"${row.status || ''}"`,
             row.birthday || '',
             row.created_at ? new Date(row.created_at).toISOString().slice(0, 10) : '',
             row.updated_at ? new Date(row.updated_at).toISOString().slice(0, 10) : ''
