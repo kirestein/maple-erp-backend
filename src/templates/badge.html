@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crachá - {{fullName}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            width: 85.6mm;
+            height: 53.98mm;
+            background: linear-gradient(135deg, #2E8B57 0%, #228B22 50%, #006400 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .badge-container {
+            width: 100%;
+            height: 100%;
+            padding: 4mm;
+            display: flex;
+            align-items: center;
+            position: relative;
+            border-radius: 6px;
+            border: 2px solid #FFD700;
+        }
+        
+        .maple-logo {
+            position: absolute;
+            top: 2mm;
+            right: 2mm;
+            width: 12mm;
+            height: 12mm;
+            background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIwIDVMMjUgMTVIMzVMMjcuNSAyMkwzMCAzMkgyMEwxMCAzMkwxMi41IDIyTDUgMTVIMTVMMjAgNVoiIGZpbGw9IiNGRkQ3MDAiLz4KPC9zdmc+') no-repeat center;
+            background-size: contain;
+            opacity: 0.8;
+        }
+        
+        .photo {
+            width: 32mm;
+            height: 32mm;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #FFD700;
+            margin-right: 4mm;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+        }
+        
+        .name {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 2mm;
+            line-height: 1.1;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            color: #FFFFFF;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .job {
+            font-size: 9px;
+            margin-bottom: 1.5mm;
+            line-height: 1.2;
+            color: #F0F8FF;
+            font-weight: 500;
+        }
+        
+        .id {
+            font-size: 8px;
+            color: #FFD700;
+            font-weight: bold;
+            background: rgba(0,0,0,0.2);
+            padding: 1mm 2mm;
+            border-radius: 2mm;
+            display: inline-block;
+            width: fit-content;
+        }
+        
+        .company {
+            position: absolute;
+            bottom: 1mm;
+            left: 4mm;
+            font-size: 7px;
+            color: #FFD700;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .decorative-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 6px;
+            pointer-events: none;
+        }
+        
+        .decorative-corner {
+            position: absolute;
+            width: 8mm;
+            height: 8mm;
+            border: 2px solid #FFD700;
+            opacity: 0.3;
+        }
+        
+        .decorative-corner.top-left {
+            top: 1mm;
+            left: 1mm;
+            border-right: none;
+            border-bottom: none;
+            border-radius: 4mm 0 0 0;
+        }
+        
+        .decorative-corner.bottom-right {
+            bottom: 1mm;
+            right: 1mm;
+            border-left: none;
+            border-top: none;
+            border-radius: 0 0 4mm 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="badge-container">
+        <div class="maple-logo"></div>
+        <img src="{{photoUrl}}" alt="Foto do funcionário" class="photo" onerror="this.src='/placeholder.jpg'">
+        <div class="info">
+            <div class="name">{{fullName}}</div>
+            <div class="job">{{jobFunctions}}</div>
+            <div class="id">ID: {{employeeId}}</div>
+        </div>
+        <div class="company">Maple Bear</div>
+        <div class="decorative-border"></div>
+        <div class="decorative-corner top-left"></div>
+        <div class="decorative-corner bottom-right"></div>
+    </div>
+</body>
+</html>
