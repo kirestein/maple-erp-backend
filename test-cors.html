@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste CORS - Maple ERP Backend</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste CORS - Maple ERP Backend</h1>
+        
+        <div class="info">
+            <strong>Instruções:</strong><br>
+            1. Certifique-se de que o backend está rodando em http://localhost:4000<br>
+            2. Abra este arquivo em http://localhost:4200 (ou qualquer servidor local)<br>
+            3. Clique nos botões abaixo para testar as requisições
+        </div>
+
+        <div class="test-section">
+            <h3>🏥 Teste Health Check</h3>
+            <button onclick="testHealthCheck()">Testar Health Check</button>
+            <div id="health-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>👥 Teste Listar Funcionários</h3>
+            <button onclick="testGetEmployees()">Listar Funcionários</button>
+            <div id="employees-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Teste Busca com Filtros</h3>
+            <button onclick="testSearchEmployees()">Buscar Funcionários</button>
+            <div id="search-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📄 Teste Template Crachá</h3>
+            <button onclick="testTemplateCracha()">Buscar Template</button>
+            <div id="template-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:4000';
+
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.className = `result ${isError ? 'error' : 'success'}`;
+            element.textContent = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+        }
+
+        function showLoading(elementId) {
+            const element = document.getElementById(elementId);
+            element.className = 'result info';
+            element.textContent = 'Carregando...';
+        }
+
+        async function testHealthCheck() {
+            showLoading('health-result');
+            try {
+                const response = await fetch(`${API_BASE_URL}/health-check`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('health-result', {
+                        status: '✅ CORS funcionando!',
+                        response: data
+                    });
+                } else {
+                    showResult('health-result', {
+                        status: '❌ Erro na resposta',
+                        error: data
+                    }, true);
+                }
+            } catch (error) {
+                showResult('health-result', {
+                    status: '❌ Erro CORS ou Conexão',
+                    error: error.message,
+                    tip: 'Verifique se o backend está rodando em localhost:4000'
+                }, true);
+            }
+        }
+
+        async function testGetEmployees() {
+            showLoading('employees-result');
+            try {
+                const response = await fetch(`${API_BASE_URL}/employees`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('employees-result', {
+                        status: '✅ CORS funcionando!',
+                        totalEmployees: Array.isArray(data) ? data.length : 'N/A',
+                        firstEmployee: Array.isArray(data) && data.length > 0 ? data[0] : 'Nenhum funcionário encontrado'
+                    });
+                } else {
+                    showResult('employees-result', {
+                        status: '❌ Erro na resposta',
+                        error: data
+                    }, true);
+                }
+            } catch (error) {
+                showResult('employees-result', {
+                    status: '❌ Erro CORS ou Conexão',
+                    error: error.message
+                }, true);
+            }
+        }
+
+        async function testSearchEmployees() {
+            showLoading('search-result');
+            try {
+                const response = await fetch(`${API_BASE_URL}/employees/search?limit=5`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('search-result', {
+                        status: '✅ CORS funcionando!',
+                        searchResult: data
+                    });
+                } else {
+                    showResult('search-result', {
+                        status: '❌ Erro na resposta',
+                        error: data
+                    }, true);
+                }
+            } catch (error) {
+                showResult('search-result', {
+                    status: '❌ Erro CORS ou Conexão',
+                    error: error.message
+                }, true);
+            }
+        }
+
+        async function testTemplateCracha() {
+            showLoading('template-result');
+            try {
+                const response = await fetch(`${API_BASE_URL}/template-cracha`);
+                
+                if (response.ok) {
+                    const contentType = response.headers.get('content-type');
+                    showResult('template-result', {
+                        status: '✅ CORS funcionando!',
+                        contentType: contentType,
+                        size: response.headers.get('content-length') + ' bytes'
+                    });
+                } else {
+                    const data = await response.json();
+                    showResult('template-result', {
+                        status: '❌ Erro na resposta',
+                        error: data
+                    }, true);
+                }
+            } catch (error) {
+                showResult('template-result', {
+                    status: '❌ Erro CORS ou Conexão',
+                    error: error.message
+                }, true);
+            }
+        }
+
+        // Teste automático ao carregar a página
+        window.onload = function() {
+            console.log('🧪 Página de teste CORS carregada');
+            console.log('📍 Origin atual:', window.location.origin);
+            console.log('🎯 API Target:', API_BASE_URL);
+        };
+    </script>
+</body>
+</html>
