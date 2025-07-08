@@ -1,6 +1,7 @@
 // src/routes/employees.js
 const cloudinary = require("../config/cloudinary");
 const db = require("../config/db");
+const pdfService = require("../services/pdf.service");
 
 async function employeeRoutes(fastify, options) {
   fastify.log.info("Registrando plugin employeeRoutes...");
@@ -283,7 +284,7 @@ async function employeeRoutes(fastify, options) {
       request.log.info("Processando multipart/form-data...");
       const parts = request.parts();
 
-      let fullName, jobFunctions, birthday;
+      let fullName, tagName, tagLastName, jobFunctions, birthday;
       let fileBuffer;
       let fileType;
 
@@ -336,15 +337,27 @@ async function employeeRoutes(fastify, options) {
             if (part.fieldname === 'fullName') {
               // Validar nome (mínimo 2 caracteres, máximo 100)
               if (value.trim().length < 2 || value.trim().length > 100) {
-                throw new Error("Nome deve ter entre 2 e 100 caracteres");
+                throw new Error("Nome completo deve ter entre 2 e 100 caracteres");
               }
               fullName = value.trim();
+            } else if (part.fieldname === 'tagName') {
+              // Validar nome para crachá (mínimo 1 caractere, máximo 50)
+              if (value.trim().length < 1 || value.trim().length > 50) {
+                throw new Error("Nome para crachá deve ter entre 1 e 50 caracteres");
+              }
+              tagName = value.trim();
+            } else if (part.fieldname === 'tagLastName') {
+              // Validar sobrenome para crachá (mínimo 1 caractere, máximo 50)
+              if (value.trim().length < 1 || value.trim().length > 50) {
+                throw new Error("Sobrenome para crachá deve ter entre 1 e 50 caracteres");
+              }
+              tagLastName = value.trim();
             } else if (part.fieldname === 'jobFunctions') {
-              // Validar cargo (mínimo 2 caracteres, máximo 100)
-              if (value.trim().length < 2 || value.trim().length > 100) {
+              // Cargo agora é opcional
+              if (value.trim().length > 0 && (value.trim().length < 2 || value.trim().length > 100)) {
                 throw new Error("Cargo deve ter entre 2 e 100 caracteres");
               }
-              jobFunctions = value.trim();
+              jobFunctions = value.trim() || null;
             } else if (part.fieldname === 'birthday') {
               // Validar formato de data (YYYY-MM-DD)
               const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -369,17 +382,17 @@ async function employeeRoutes(fastify, options) {
       }
 
       request.log.info(
-        `Campos extraídos: fullName=${fullName}, jobFunctions=${jobFunctions}, birthday=${birthday}`
+        `Campos extraídos: fullName=${fullName}, tagName=${tagName}, tagLastName=${tagLastName}, jobFunctions=${jobFunctions}, birthday=${birthday}`
       );
 
       // --- 1. Validation ---
       request.log.info("Iniciando validação...");
-      if (!fullName || !jobFunctions) {
+      if (!fullName || !tagName || !tagLastName) {
         request.log.warn("Validação falhou: Campos obrigatórios faltando.");
         reply.code(400);
         return { 
           error: "Missing Required Fields", 
-          message: "Campos obrigatórios (nome, cargo) faltando." 
+          message: "Campos obrigatórios faltando: Nome completo, Nome para crachá e Sobrenome para crachá são obrigatórios." 
         };
       }
       if (!fileBuffer) {
@@ -461,11 +474,11 @@ async function employeeRoutes(fastify, options) {
       // --- 3. Save to Database ---
       request.log.info("Iniciando inserção no banco de dados...");
       const insertQuery = `
-        INSERT INTO employees (full_name, job_functions, birthday, photo_url)
-        VALUES ($1, $2, $3, $4)
-        RETURNING id, full_name, job_functions, birthday, photo_url, created_at;
+        INSERT INTO employees (full_name, tag_name, tag_last_name, job_functions, birthday, photo_url)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id, full_name, tag_name, tag_last_name, job_functions, birthday, photo_url, created_at;
       `;
-      const values = [fullName, jobFunctions, birthday || null, photoUrl]; // Use adjusted variable names
+      const values = [fullName, tagName, tagLastName, jobFunctions, birthday || null, photoUrl];
 
       const dbResult = await db.query(insertQuery, values);
       const newEmployee = dbResult.rows[0];
@@ -517,6 +530,686 @@ async function employeeRoutes(fastify, options) {
       }
     }
   });
+
+  // GET /employees/:id - Buscar funcionário por ID
+  fastify.get(
+    "/:id",
+    {
+      schema: {
+        summary: "Busca funcionário por ID",
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "integer", minimum: 1 }
+          },
+          required: ["id"]
+        },
+        response: {
+          200: {
+            description: "Funcionário encontrado",
+            type: "object",
+            properties: {
+              id: { type: "integer" },
+              fullName: { type: "string" },
+              jobFunctions: { type: "string" },
+              birthday: { type: "string", format: "date" },
+              photoUrl: { type: "string" },
+              // ... outros campos conforme necessário
+            }
+          },
+          404: {
+            description: "Funcionário não encontrado",
+            type: "object",
+            properties: {
+              error: { type: "string" },
+              message: { type: "string" }
+            }
+          }
+        }
+      }
+    },
+    async (request, reply) => {
+      try {
+        const { id } = request.params;
+        request.log.info(`Buscando funcionário com ID: ${id}`);
+        
+        const { rows } = await db.query(
+          `SELECT 
+            id,
+            full_name AS "fullName",
+            job_functions AS "jobFunctions",
+            birthday,
+            photo_url AS "photoUrl",
+            email,
+            phone,
+            mobile,
+            cpf,
+            rg,
+            status,
+            created_at AS "createdAt",
+            updated_at AS "updatedAt"
+          FROM employees 
+          WHERE id = $1`,
+          [id]
+        );
+        
+        if (rows.length === 0) {
+          reply.code(404);
+          return {
+            error: "Employee Not Found",
+            message: "Funcionário não encontrado"
+          };
+        }
+        
+        return rows[0];
+      } catch (error) {
+        request.log.error("Erro ao buscar funcionário:", error);
+        reply.code(500);
+        return {
+          error: "Internal Server Error",
+          message: "Erro interno do servidor"
+        };
+      }
+    }
+  );
+
+  // PUT /employees/:id - Atualizar funcionário
+  fastify.put(
+    "/:id",
+    {
+      schema: {
+        summary: "Atualiza funcionário por ID",
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "integer", minimum: 1 }
+          },
+          required: ["id"]
+        },
+        body: {
+          type: "object",
+          properties: {
+            fullName: { type: "string", minLength: 2, maxLength: 100 },
+            jobFunctions: { type: "string", minLength: 2, maxLength: 100 },
+            birthday: { type: "string", format: "date" },
+            email: { type: "string", format: "email" },
+            phone: { type: "string" },
+            mobile: { type: "string" },
+            status: { type: "string", enum: ["Ativo", "Inativo", "Licença"] }
+          }
+        },
+        response: {
+          200: {
+            description: "Funcionário atualizado",
+            type: "object",
+            properties: {
+              id: { type: "integer" },
+              fullName: { type: "string" },
+              jobFunctions: { type: "string" },
+              updatedAt: { type: "string", format: "date-time" }
+            }
+          },
+          404: {
+            description: "Funcionário não encontrado",
+            type: "object",
+            properties: {
+              error: { type: "string" },
+              message: { type: "string" }
+            }
+          }
+        }
+      }
+    },
+    async (request, reply) => {
+      try {
+        const { id } = request.params;
+        const updateData = request.body;
+        
+        request.log.info(`Atualizando funcionário ID: ${id}`, updateData);
+        
+        // Verificar se funcionário existe
+        const existsQuery = await db.query('SELECT id FROM employees WHERE id = $1', [id]);
+        if (existsQuery.rows.length === 0) {
+          reply.code(404);
+          return {
+            error: "Employee Not Found",
+            message: "Funcionário não encontrado"
+          };
+        }
+        
+        // Construir query de update dinamicamente
+        const updateFields = [];
+        const updateValues = [];
+        let paramCount = 1;
+        
+        if (updateData.fullName) {
+          updateFields.push(`full_name = ${paramCount}`);
+          updateValues.push(updateData.fullName);
+          paramCount++;
+        }
+        
+        if (updateData.jobFunctions) {
+          updateFields.push(`job_functions = ${paramCount}`);
+          updateValues.push(updateData.jobFunctions);
+          paramCount++;
+        }
+        
+        if (updateData.birthday) {
+          updateFields.push(`birthday = ${paramCount}`);
+          updateValues.push(updateData.birthday);
+          paramCount++;
+        }
+        
+        if (updateData.email) {
+          updateFields.push(`email = ${paramCount}`);
+          updateValues.push(updateData.email);
+          paramCount++;
+        }
+        
+        if (updateData.phone) {
+          updateFields.push(`phone = ${paramCount}`);
+          updateValues.push(updateData.phone);
+          paramCount++;
+        }
+        
+        if (updateData.mobile) {
+          updateFields.push(`mobile = ${paramCount}`);
+          updateValues.push(updateData.mobile);
+          paramCount++;
+        }
+        
+        if (updateData.status) {
+          updateFields.push(`status = ${paramCount}`);
+          updateValues.push(updateData.status);
+          paramCount++;
+        }
+        
+        // Adicionar updated_at
+        updateFields.push(`updated_at = NOW()`);
+        updateValues.push(id); // ID para WHERE clause
+        
+        if (updateFields.length === 1) { // Apenas updated_at
+          reply.code(400);
+          return {
+            error: "No Fields to Update",
+            message: "Nenhum campo válido fornecido para atualização"
+          };
+        }
+        
+        const updateQuery = `
+          UPDATE employees 
+          SET ${updateFields.join(', ')}
+          WHERE id = ${paramCount}
+          RETURNING id, full_name AS "fullName", job_functions AS "jobFunctions", updated_at AS "updatedAt"
+        `;
+        
+        const { rows } = await db.query(updateQuery, updateValues);
+        
+        return rows[0];
+      } catch (error) {
+        request.log.error("Erro ao atualizar funcionário:", error);
+        reply.code(500);
+        return {
+          error: "Internal Server Error",
+          message: "Erro interno do servidor"
+        };
+      }
+    }
+  );
+
+  // DELETE /employees/:id - Deletar funcionário
+  fastify.delete(
+    "/:id",
+    {
+      schema: {
+        summary: "Deleta funcionário por ID",
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "integer", minimum: 1 }
+          },
+          required: ["id"]
+        },
+        response: {
+          200: {
+            description: "Funcionário deletado",
+            type: "object",
+            properties: {
+              message: { type: "string" },
+              deletedId: { type: "integer" }
+            }
+          },
+          404: {
+            description: "Funcionário não encontrado",
+            type: "object",
+            properties: {
+              error: { type: "string" },
+              message: { type: "string" }
+            }
+          }
+        }
+      }
+    },
+    async (request, reply) => {
+      try {
+        const { id } = request.params;
+        request.log.info(`Deletando funcionário ID: ${id}`);
+        
+        const { rows } = await db.query(
+          'DELETE FROM employees WHERE id = $1 RETURNING id',
+          [id]
+        );
+        
+        if (rows.length === 0) {
+          reply.code(404);
+          return {
+            error: "Employee Not Found",
+            message: "Funcionário não encontrado"
+          };
+        }
+        
+        return {
+          message: "Funcionário deletado com sucesso",
+          deletedId: parseInt(id)
+        };
+      } catch (error) {
+        request.log.error("Erro ao deletar funcionário:", error);
+        reply.code(500);
+        return {
+          error: "Internal Server Error",
+          message: "Erro interno do servidor"
+        };
+      }
+    }
+  );
+
+  // GET /employees/search - Buscar funcionários com filtros
+  fastify.get(
+    "/search",
+    {
+      schema: {
+        summary: "Busca funcionários com filtros",
+        querystring: {
+          type: "object",
+          properties: {
+            name: { type: "string", minLength: 2 },
+            jobFunction: { type: "string" },
+            status: { type: "string", enum: ["Ativo", "Inativo", "Licença"] },
+            limit: { type: "integer", minimum: 1, maximum: 100, default: 20 },
+            offset: { type: "integer", minimum: 0, default: 0 }
+          }
+        },
+        response: {
+          200: {
+            description: "Resultados da busca",
+            type: "object",
+            properties: {
+              employees: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    id: { type: "integer" },
+                    fullName: { type: "string" },
+                    jobFunctions: { type: "string" },
+                    photoUrl: { type: "string" },
+                    status: { type: "string" }
+                  }
+                }
+              },
+              total: { type: "integer" },
+              limit: { type: "integer" },
+              offset: { type: "integer" }
+            }
+          }
+        }
+      }
+    },
+    async (request, reply) => {
+      try {
+        const { name, jobFunction, status, limit = 20, offset = 0 } = request.query;
+        
+        request.log.info("Buscando funcionários com filtros:", request.query);
+        
+        let whereConditions = [];
+        let queryParams = [];
+        let paramCount = 1;
+        
+        if (name) {
+          whereConditions.push(`full_name ILIKE ${paramCount}`);
+          queryParams.push(`%${name}%`);
+          paramCount++;
+        }
+        
+        if (jobFunction) {
+          whereConditions.push(`job_functions ILIKE ${paramCount}`);
+          queryParams.push(`%${jobFunction}%`);
+          paramCount++;
+        }
+        
+        if (status) {
+          whereConditions.push(`status = ${paramCount}`);
+          queryParams.push(status);
+          paramCount++;
+        }
+        
+        const whereClause = whereConditions.length > 0 
+          ? `WHERE ${whereConditions.join(' AND ')}`
+          : '';
+        
+        // Query para contar total
+        const countQuery = `SELECT COUNT(*) as total FROM employees ${whereClause}`;
+        const countResult = await db.query(countQuery, queryParams);
+        const total = parseInt(countResult.rows[0].total);
+        
+        // Query para buscar funcionários
+        const searchQuery = `
+          SELECT 
+            id,
+            full_name AS "fullName",
+            job_functions AS "jobFunctions",
+            photo_url AS "photoUrl",
+            status,
+            created_at AS "createdAt"
+          FROM employees 
+          ${whereClause}
+          ORDER BY full_name
+          LIMIT ${paramCount} OFFSET ${paramCount + 1}
+        `;
+        
+        queryParams.push(limit, offset);
+        const { rows } = await db.query(searchQuery, queryParams);
+        
+        return {
+          employees: rows,
+          total,
+          limit,
+          offset
+        };
+      } catch (error) {
+        request.log.error("Erro ao buscar funcionários:", error);
+        reply.code(500);
+        return {
+          error: "Internal Server Error",
+          message: "Erro interno do servidor"
+        };
+      }
+    }
+  );
+
+  // POST /employees/:id/badge - Gerar crachá individual
+  fastify.get(
+    "/:id/badge",
+    {
+      schema: {
+        summary: "Gera crachá em PDF para um funcionário",
+        params: {
+          type: "object",
+          properties: {
+            id: { type: "integer", minimum: 1 }
+          },
+          required: ["id"]
+        },
+        response: {
+          200: {
+            description: "PDF do crachá gerado",
+            type: "string",
+            format: "binary"
+          },
+          404: {
+            description: "Funcionário não encontrado",
+            type: "object",
+            properties: {
+              error: { type: "string" },
+              message: { type: "string" }
+            }
+          }
+        }
+      }
+    },
+    async (request, reply) => {
+      try {
+        const { id } = request.params;
+        request.log.info(`Gerando crachá para funcionário ID: ${id}`);
+        
+        // Buscar dados do funcionário
+        const { rows } = await db.query(
+          `SELECT 
+            id,
+            full_name AS "fullName",
+            job_functions AS "jobFunctions",
+            photo_url AS "photoUrl"
+          FROM employees 
+          WHERE id = $1`,
+          [id]
+        );
+        
+        if (rows.length === 0) {
+          reply.code(404);
+          return {
+            error: "Employee Not Found",
+            message: "Funcionário não encontrado"
+          };
+        }
+        
+        const employee = rows[0];
+        
+        // Gerar PDF do crachá
+        const pdfBuffer = await pdfService.generateBadge(employee);
+        
+        // Configurar headers para download do PDF
+        reply
+          .type('application/pdf')
+          .header('Content-Disposition', `attachment; filename="cracha_${employee.fullName.replace(/\s+/g, '_')}_${id}.pdf"`)
+          .header('Content-Length', pdfBuffer.length)
+          .send(pdfBuffer);
+          
+      } catch (error) {
+        request.log.error("Erro ao gerar crachá:", error);
+        reply.code(500);
+        return {
+          error: "Internal Server Error",
+          message: "Erro interno do servidor ao gerar crachá"
+        };
+      }
+    }
+  );
+
+  // POST /employees/badges - Gerar múltiplos crachás
+  fastify.post(
+    "/badges",
+    {
+      schema: {
+        summary: "Gera crachás em PDF para múltiplos funcionários",
+        body: {
+          type: "object",
+          properties: {
+            employeeIds: {
+              type: "array",
+              items: { type: "integer", minimum: 1 },
+              minItems: 1,
+              maxItems: 50
+            }
+          },
+          required: ["employeeIds"]
+        },
+        response: {
+          200: {
+            description: "PDF com múltiplos crachás gerado",
+            type: "string",
+            format: "binary"
+          },
+          400: {
+            description: "Dados inválidos",
+            type: "object",
+            properties: {
+              error: { type: "string" },
+              message: { type: "string" }
+            }
+          }
+        }
+      }
+    },
+    async (request, reply) => {
+      try {
+        const { employeeIds } = request.body;
+        request.log.info(`Gerando crachás para funcionários:`, employeeIds);
+        
+        if (!employeeIds || employeeIds.length === 0) {
+          reply.code(400);
+          return {
+            error: "Invalid Data",
+            message: "Lista de IDs de funcionários é obrigatória"
+          };
+        }
+        
+        // Buscar dados dos funcionários
+        const placeholders = employeeIds.map((_, index) => `${index + 1}`).join(',');
+        const { rows } = await db.query(
+          `SELECT 
+            id,
+            full_name AS "fullName",
+            job_functions AS "jobFunctions",
+            photo_url AS "photoUrl"
+          FROM employees 
+          WHERE id IN (${placeholders})
+          ORDER BY full_name`,
+          employeeIds
+        );
+        
+        if (rows.length === 0) {
+          reply.code(404);
+          return {
+            error: "No Employees Found",
+            message: "Nenhum funcionário encontrado com os IDs fornecidos"
+          };
+        }
+        
+        // Gerar PDF com múltiplos crachás
+        const pdfBuffer = await pdfService.generateMultipleBadges(rows);
+        
+        // Configurar headers para download do PDF
+        const timestamp = new Date().toISOString().slice(0, 10);
+        reply
+          .type('application/pdf')
+          .header('Content-Disposition', `attachment; filename="crachas_multiplos_${timestamp}.pdf"`)
+          .header('Content-Length', pdfBuffer.length)
+          .send(pdfBuffer);
+          
+      } catch (error) {
+        request.log.error("Erro ao gerar múltiplos crachás:", error);
+        reply.code(500);
+        return {
+          error: "Internal Server Error",
+          message: "Erro interno do servidor ao gerar crachás"
+        };
+      }
+    }
+  );
+
+  // GET /employees/export - Exportar dados dos funcionários
+  fastify.get(
+    "/export",
+    {
+      schema: {
+        summary: "Exporta dados dos funcionários em CSV",
+        querystring: {
+          type: "object",
+          properties: {
+            format: { type: "string", enum: ["csv", "json"], default: "csv" },
+            status: { type: "string", enum: ["Ativo", "Inativo", "Licença"] }
+          }
+        },
+        response: {
+          200: {
+            description: "Dados exportados",
+            type: "string"
+          }
+        }
+      }
+    },
+    async (request, reply) => {
+      try {
+        const { format = 'csv', status } = request.query;
+        request.log.info(`Exportando funcionários - formato: ${format}, status: ${status}`);
+        
+        let whereClause = '';
+        let queryParams = [];
+        
+        if (status) {
+          whereClause = 'WHERE status = $1';
+          queryParams.push(status);
+        }
+        
+        const { rows } = await db.query(
+          `SELECT 
+            id,
+            full_name,
+            job_functions,
+            email,
+            phone,
+            mobile,
+            cpf,
+            rg,
+            status,
+            birthday,
+            created_at,
+            updated_at
+          FROM employees 
+          ${whereClause}
+          ORDER BY full_name`,
+          queryParams
+        );
+        
+        if (format === 'json') {
+          reply
+            .type('application/json')
+            .header('Content-Disposition', `attachment; filename="funcionarios_${new Date().toISOString().slice(0, 10)}.json"`)
+            .send(rows);
+        } else {
+          // Gerar CSV
+          const csvHeaders = [
+            'ID', 'Nome Completo', 'Cargo', 'Email', 'Telefone', 
+            'Celular', 'CPF', 'RG', 'Status', 'Nascimento', 
+            'Criado em', 'Atualizado em'
+          ];
+          
+          const csvRows = rows.map(row => [
+            row.id,
+            `"${row.full_name || ''}"`,,
+            `"${row.job_functions || ''}"`,,
+            `"${row.email || ''}"`,,
+            `"${row.phone || ''}"`,,
+            `"${row.mobile || ''}"`,,
+            `"${row.cpf || ''}"`,,
+            `"${row.rg || ''}"`,,
+            `"${row.status || ''}"`,,
+            row.birthday || '',
+            row.created_at ? new Date(row.created_at).toISOString().slice(0, 10) : '',
+            row.updated_at ? new Date(row.updated_at).toISOString().slice(0, 10) : ''
+          ]);
+          
+          const csvContent = [
+            csvHeaders.join(','),
+            ...csvRows.map(row => row.join(','))
+          ].join('\n');
+          
+          reply
+            .type('text/csv')
+            .header('Content-Disposition', `attachment; filename="funcionarios_${new Date().toISOString().slice(0, 10)}.csv"`)
+            .send(csvContent);
+        }
+        
+      } catch (error) {
+        request.log.error("Erro ao exportar funcionários:", error);
+        reply.code(500);
+        return {
+          error: "Internal Server Error",
+          message: "Erro interno do servidor ao exportar dados"
+        };
+      }
+    }
+  );
 
   fastify.log.info("Plugin employeeRoutes registrado com sucesso.");
 }
