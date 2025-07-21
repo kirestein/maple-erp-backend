@@ -163,7 +163,6 @@ async function employeeRoutes(fastify) {
           partner_cpf AS "partnerCpf",
           partner_birthday AS "partnerBirthday",
           partner_rg AS "partnerRg",
-          photo_url AS "photoUrl",
           gender,
           marital_status AS "maritalStatus",
           graduation,
@@ -221,6 +220,7 @@ async function employeeRoutes(fastify) {
           job_position AS "jobPosition",
           department,
           user_id AS "userId",
+          photo_url AS "photoUrl",
           created_at AS "createdAt",
           updated_at AS "updatedAt"
         FROM employees
@@ -284,9 +284,60 @@ async function employeeRoutes(fastify) {
       request.log.info("Processando multipart/form-data...");
       const parts = request.parts();
 
-      let fullName, tagName, tagLastName, jobFunctions, birthday;
-      let fileBuffer;
-      let fileType;
+      // Campos obrigatórios
+      let fullName, tagName, tagLastName;
+      let fileBuffer, fileType;
+      
+      // Campos opcionais - dados básicos
+      let companyNumber, companyName, email, birthday, age;
+      
+      // Endereço
+      let cep, employeeAddress, employeeAddressNumber, employeeAddressComplement;
+      let employeeNeighborhood, employeeAddressCity, employeeAddressState;
+      
+      // Contatos
+      let phone, mobile;
+      
+      // Informações pessoais
+      let naturalness, nationality, fatherName, motherName;
+      
+      // Benefícios
+      let mealValue, deficiency, deficiencyDescription, transport, transportType, transportValue;
+      
+      // Informações do cônjuge
+      let partnerName, partnerCpf, partnerBirthday, partnerRg;
+      
+      // Informações pessoais adicionais
+      let gender, maritalStatus, graduation, skinColor;
+      
+      // Documentos
+      let rg, rgEmitter, rgEmissionDate, cpf, pisPasep;
+      let voterTitle, voterZone, voterSection, voterEmission;
+      let militaryCertificate, ctps, ctpsSerie;
+      
+      // Carteira de motorista
+      let driversLicense, driversLicenseNumber, driversLicenseEmissionDate;
+      let driversLicenseExpirationDate, driversLicenseCategory;
+      
+      // Plano de saúde
+      let healthPlan, healthCardNumber;
+      
+      // Informações acadêmicas
+      let collegeCep, traineeAddress, traineeAddressNumber, traineeAddressNeighborhood;
+      let traineeAddressComplement, traineeAddressState, traineeAddressCity;
+      let college, course, trainingPeriod, lifeInsurancePolicy, ra;
+      
+      // Informações de trabalho
+      let jobFunctions, admissionDate, periodWork, contractExpirationDate;
+      let dailyHours, weeklyHours, monthlyHours, weeklyClasses;
+      let hasAccumulate, hasAccumulateCompany;
+      
+      // Informações salariais
+      let salary, salaryBank, salaryAgency, salaryAccount, salaryAccountType;
+      let familySalary, parenting, irpf;
+      
+      // Status e controle
+      let status, jobPosition, department, userId;
       
       // Processar cada parte do multipart/form-data
       try {
@@ -331,41 +382,347 @@ async function employeeRoutes(fastify) {
             
             request.log.info(`Campo ${part.fieldname}: ${value}`);
             
-            if (part.fieldname === 'fullName') {
-              // Validar nome (mínimo 2 caracteres, máximo 100)
-              if (value.trim().length < 2 || value.trim().length > 100) {
-                throw new Error("Nome completo deve ter entre 2 e 100 caracteres");
-              }
-              fullName = value.trim();
-            } else if (part.fieldname === 'tagName') {
-              // Validar nome para crachá (mínimo 1 caractere, máximo 50)
-              if (value.trim().length < 1 || value.trim().length > 50) {
-                throw new Error("Nome para crachá deve ter entre 1 e 50 caracteres");
-              }
-              tagName = value.trim();
-            } else if (part.fieldname === 'tagLastName') {
-              // Validar sobrenome para crachá (mínimo 1 caractere, máximo 50)
-              if (value.trim().length < 1 || value.trim().length > 50) {
-                throw new Error("Sobrenome para crachá deve ter entre 1 e 50 caracteres");
-              }
-              tagLastName = value.trim();
-            } else if (part.fieldname === 'jobFunctions') {
-              // Cargo agora é opcional
-              if (value.trim().length > 0 && (value.trim().length < 2 || value.trim().length > 100)) {
-                throw new Error("Cargo deve ter entre 2 e 100 caracteres");
-              }
-              jobFunctions = value.trim() || null;
-            } else if (part.fieldname === 'birthday') {
-              // Validar formato de data (YYYY-MM-DD)
-              const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-              if (value && !dateRegex.test(value)) {
-                throw new Error("Data de nascimento deve estar no formato YYYY-MM-DD");
-              }
-              // Validar se a data não é futura
-              if (value && new Date(value) > new Date()) {
-                throw new Error("Data de nascimento não pode ser futura");
-              }
-              birthday = value;
+            // Processamento de todos os campos
+            switch (part.fieldname) {
+              // Campos obrigatórios
+              case 'fullName':
+                if (value.trim().length < 2 || value.trim().length > 100) {
+                  throw new Error("Nome completo deve ter entre 2 e 100 caracteres");
+                }
+                fullName = value.trim();
+                break;
+              case 'tagName':
+                if (value.trim().length < 1 || value.trim().length > 50) {
+                  throw new Error("Nome para crachá deve ter entre 1 e 50 caracteres");
+                }
+                tagName = value.trim();
+                break;
+              case 'tagLastName':
+                if (value.trim().length < 1 || value.trim().length > 50) {
+                  throw new Error("Sobrenome para crachá deve ter entre 1 e 50 caracteres");
+                }
+                tagLastName = value.trim();
+                break;
+                
+              // Campos básicos
+              case 'companyNumber':
+                companyNumber = value ? parseInt(value) : null;
+                break;
+              case 'companyName':
+                companyName = value.trim() || null;
+                break;
+              case 'email':
+                if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                  throw new Error("Email inválido");
+                }
+                email = value.trim() || null;
+                break;
+              case 'birthday':
+                if (value && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                  throw new Error("Data de nascimento deve estar no formato YYYY-MM-DD");
+                }
+                if (value && new Date(value) > new Date()) {
+                  throw new Error("Data de nascimento não pode ser futura");
+                }
+                birthday = value || null;
+                break;
+              case 'age':
+                age = value.trim() || null;
+                break;
+                
+              // Endereço
+              case 'cep':
+                cep = value.trim() || null;
+                break;
+              case 'employeeAddress':
+                employeeAddress = value.trim() || null;
+                break;
+              case 'employeeAddressNumber':
+                employeeAddressNumber = value.trim() || null;
+                break;
+              case 'employeeAddressComplement':
+                employeeAddressComplement = value.trim() || null;
+                break;
+              case 'employeeNeighborhood':
+                employeeNeighborhood = value.trim() || null;
+                break;
+              case 'employeeAddressCity':
+                employeeAddressCity = value.trim() || null;
+                break;
+              case 'employeeAddressState':
+                employeeAddressState = value.trim() || null;
+                break;
+                
+              // Contatos
+              case 'phone':
+                phone = value.trim() || null;
+                break;
+              case 'mobile':
+                mobile = value.trim() || null;
+                break;
+                
+              // Informações pessoais
+              case 'naturalness':
+                naturalness = value.trim() || null;
+                break;
+              case 'nationality':
+                nationality = value.trim() || null;
+                break;
+              case 'fatherName':
+                fatherName = value.trim() || null;
+                break;
+              case 'motherName':
+                motherName = value.trim() || null;
+                break;
+                
+              // Benefícios
+              case 'mealValue':
+                mealValue = value ? parseFloat(value) : null;
+                break;
+              case 'deficiency':
+                deficiency = value === 'true' || value === '1';
+                break;
+              case 'deficiencyDescription':
+                deficiencyDescription = value.trim() || null;
+                break;
+              case 'transport':
+                transport = value === 'true' || value === '1';
+                break;
+              case 'transportType':
+                transportType = value.trim() || null;
+                break;
+              case 'transportValue':
+                transportValue = value ? parseFloat(value) : null;
+                break;
+                
+              // Informações do cônjuge
+              case 'partnerName':
+                partnerName = value.trim() || null;
+                break;
+              case 'partnerCpf':
+                partnerCpf = value.trim() || null;
+                break;
+              case 'partnerBirthday':
+                if (value && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                  throw new Error("Data de nascimento do cônjuge deve estar no formato YYYY-MM-DD");
+                }
+                partnerBirthday = value || null;
+                break;
+              case 'partnerRg':
+                partnerRg = value.trim() || null;
+                break;
+                
+              // Informações pessoais adicionais
+              case 'gender':
+                gender = value.trim() || null;
+                break;
+              case 'maritalStatus':
+                maritalStatus = value.trim() || null;
+                break;
+              case 'graduation':
+                graduation = value.trim() || null;
+                break;
+              case 'skinColor':
+                skinColor = value.trim() || null;
+                break;
+                
+              // Documentos
+              case 'rg':
+                rg = value.trim() || null;
+                break;
+              case 'rgEmitter':
+                rgEmitter = value.trim() || null;
+                break;
+              case 'rgEmissionDate':
+                if (value && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                  throw new Error("Data de emissão do RG deve estar no formato YYYY-MM-DD");
+                }
+                rgEmissionDate = value || null;
+                break;
+              case 'cpf':
+                cpf = value.trim() || null;
+                break;
+              case 'pisPasep':
+                pisPasep = value.trim() || null;
+                break;
+              case 'voterTitle':
+                voterTitle = value.trim() || null;
+                break;
+              case 'voterZone':
+                voterZone = value.trim() || null;
+                break;
+              case 'voterSection':
+                voterSection = value.trim() || null;
+                break;
+              case 'voterEmission':
+                if (value && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                  throw new Error("Data de emissão do título deve estar no formato YYYY-MM-DD");
+                }
+                voterEmission = value || null;
+                break;
+              case 'militaryCertificate':
+                militaryCertificate = value.trim() || null;
+                break;
+              case 'ctps':
+                ctps = value.trim() || null;
+                break;
+              case 'ctpsSerie':
+                ctpsSerie = value.trim() || null;
+                break;
+                
+              // Carteira de motorista
+              case 'driversLicense':
+                driversLicense = value === 'true' || value === '1';
+                break;
+              case 'driversLicenseNumber':
+                driversLicenseNumber = value.trim() || null;
+                break;
+              case 'driversLicenseEmissionDate':
+                if (value && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                  throw new Error("Data de emissão da CNH deve estar no formato YYYY-MM-DD");
+                }
+                driversLicenseEmissionDate = value || null;
+                break;
+              case 'driversLicenseExpirationDate':
+                if (value && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                  throw new Error("Data de validade da CNH deve estar no formato YYYY-MM-DD");
+                }
+                driversLicenseExpirationDate = value || null;
+                break;
+              case 'driversLicenseCategory':
+                driversLicenseCategory = value.trim() || null;
+                break;
+                
+              // Plano de saúde
+              case 'healthPlan':
+                healthPlan = value.trim() || null;
+                break;
+              case 'healthCardNumber':
+                healthCardNumber = value.trim() || null;
+                break;
+                
+              // Informações acadêmicas
+              case 'collegeCep':
+                collegeCep = value.trim() || null;
+                break;
+              case 'traineeAddress':
+                traineeAddress = value.trim() || null;
+                break;
+              case 'traineeAddressNumber':
+                traineeAddressNumber = value ? parseInt(value) : null;
+                break;
+              case 'traineeAddressNeighborhood':
+                traineeAddressNeighborhood = value.trim() || null;
+                break;
+              case 'traineeAddressComplement':
+                traineeAddressComplement = value.trim() || null;
+                break;
+              case 'traineeAddressState':
+                traineeAddressState = value.trim() || null;
+                break;
+              case 'traineeAddressCity':
+                traineeAddressCity = value.trim() || null;
+                break;
+              case 'college':
+                college = value.trim() || null;
+                break;
+              case 'course':
+                course = value.trim() || null;
+                break;
+              case 'trainingPeriod':
+                trainingPeriod = value.trim() || null;
+                break;
+              case 'lifeInsurancePolicy':
+                lifeInsurancePolicy = value.trim() || null;
+                break;
+              case 'ra':
+                ra = value.trim() || null;
+                break;
+                
+              // Informações de trabalho
+              case 'jobFunctions':
+                if (value.trim().length > 0 && (value.trim().length < 2 || value.trim().length > 100)) {
+                  throw new Error("Cargo deve ter entre 2 e 100 caracteres");
+                }
+                jobFunctions = value.trim() || null;
+                break;
+              case 'admissionDate':
+                if (value && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                  throw new Error("Data de admissão deve estar no formato YYYY-MM-DD");
+                }
+                admissionDate = value || null;
+                break;
+              case 'periodWork':
+                periodWork = value.trim() || null;
+                break;
+              case 'contractExpirationDate':
+                if (value && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                  throw new Error("Data de expiração do contrato deve estar no formato YYYY-MM-DD");
+                }
+                contractExpirationDate = value || null;
+                break;
+              case 'dailyHours':
+                dailyHours = value.trim() || null;
+                break;
+              case 'weeklyHours':
+                weeklyHours = value.trim() || null;
+                break;
+              case 'monthlyHours':
+                monthlyHours = value.trim() || null;
+                break;
+              case 'weeklyClasses':
+                weeklyClasses = value.trim() || null;
+                break;
+              case 'hasAccumulate':
+                hasAccumulate = value === 'true' || value === '1';
+                break;
+              case 'hasAccumulateCompany':
+                hasAccumulateCompany = value.trim() || null;
+                break;
+                
+              // Informações salariais
+              case 'salary':
+                salary = value ? parseFloat(value) : null;
+                break;
+              case 'salaryBank':
+                salaryBank = value.trim() || null;
+                break;
+              case 'salaryAgency':
+                salaryAgency = value.trim() || null;
+                break;
+              case 'salaryAccount':
+                salaryAccount = value.trim() || null;
+                break;
+              case 'salaryAccountType':
+                salaryAccountType = value.trim() || null;
+                break;
+              case 'familySalary':
+                familySalary = value ? parseFloat(value) : null;
+                break;
+              case 'parenting':
+                parenting = value.trim() || null;
+                break;
+              case 'irpf':
+                irpf = value.trim() || null;
+                break;
+                
+              // Status e controle
+              case 'status':
+                status = value.trim() || 'Ativo';
+                break;
+              case 'jobPosition':
+                jobPosition = value.trim() || null;
+                break;
+              case 'department':
+                department = value.trim() || null;
+                break;
+              case 'userId':
+                userId = value.trim() || null;
+                break;
+                
+              default:
+                request.log.warn(`Campo desconhecido: ${part.fieldname}`);
+                break;
             }
           }
         }
@@ -471,11 +828,106 @@ async function employeeRoutes(fastify) {
       // --- 3. Save to Database ---
       request.log.info("Iniciando inserção no banco de dados...");
       const insertQuery = `
-        INSERT INTO employees (full_name, tag_name, tag_last_name, job_functions, birthday, photo_url)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING id, full_name, tag_name, tag_last_name, job_functions, birthday, photo_url, created_at;
+        INSERT INTO employees (
+          full_name, tag_name, tag_last_name, job_functions, birthday, photo_url,
+          company_number, company_name, email, age,
+          cep, employee_address, employee_address_number, employee_address_complement,
+          employee_neighborhood, employee_address_city, employee_address_state,
+          phone, mobile, naturalness, nationality, father_name, mother_name,
+          meal_value, deficiency, deficiency_description, transport, transport_type, transport_value,
+          partner_name, partner_cpf, partner_birthday, partner_rg,
+          gender, marital_status, graduation, skin_color,
+          rg, rg_emitter, rg_emission_date, cpf, pis_pasep,
+          voter_title, voter_zone, voter_section, voter_emission,
+          military_certificate, ctps, ctps_serie,
+          drivers_license, drivers_license_number, drivers_license_emission_date,
+          drivers_license_expiration_date, drivers_license_category,
+          health_plan, health_card_number,
+          college_cep, trainee_address, trainee_address_number, trainee_address_neighborhood,
+          trainee_address_complement, trainee_address_state, trainee_address_city,
+          college, course, training_period, life_insurance_policy, ra,
+          admission_date, period_work, contract_expiration_date,
+          daily_hours, weekly_hours, monthly_hours, weekly_classes,
+          has_accumulate, has_accumulate_company,
+          salary, salary_bank, salary_agency, salary_account, salary_account_type,
+          family_salary, parenting, irpf,
+          status, job_position, department, user_id
+        )
+        VALUES (
+          $1, $2, $3, $4, $5, $6,
+          $7, $8, $9, $10,
+          $11, $12, $13, $14,
+          $15, $16, $17,
+          $18, $19, $20, $21, $22, $23,
+          $24, $25, $26, $27, $28, $29,
+          $30, $31, $32, $33,
+          $34, $35, $36, $37,
+          $38, $39, $40, $41, $42,
+          $43, $44, $45, $46,
+          $47, $48, $49,
+          $50, $51, $52,
+          $53, $54,
+          $55, $56,
+          $57, $58, $59, $60,
+          $61, $62, $63,
+          $64, $65, $66, $67, $68,
+          $69, $70, $71,
+          $72, $73, $74, $75,
+          $76, $77,
+          $78, $79, $80, $81, $82,
+          $83, $84, $85,
+          $86, $87, $88, $89
+        )
+        RETURNING id, full_name, tag_name, tag_last_name, job_functions, birthday, photo_url, email, phone, mobile, status, created_at;
       `;
-      const values = [fullName, tagName, tagLastName, jobFunctions, birthday || null, photoUrl];
+      
+      const values = [
+        // Campos básicos (1-6)
+        fullName, tagName, tagLastName, jobFunctions, birthday || null, photoUrl,
+        // Campos básicos adicionais (7-10)
+        companyNumber, companyName, email, age,
+        // Endereço (11-17)
+        cep, employeeAddress, employeeAddressNumber, employeeAddressComplement,
+        employeeNeighborhood, employeeAddressCity, employeeAddressState,
+        // Contatos (18-19)
+        phone, mobile,
+        // Informações pessoais (20-23)
+        naturalness, nationality, fatherName, motherName,
+        // Benefícios (24-29)
+        mealValue, deficiency, deficiencyDescription, transport, transportType, transportValue,
+        // Informações do cônjuge (30-33)
+        partnerName, partnerCpf, partnerBirthday, partnerRg,
+        // Informações pessoais adicionais (34-37)
+        gender, maritalStatus, graduation, skinColor,
+        // Documentos (38-42)
+        rg, rgEmitter, rgEmissionDate, cpf, pisPasep,
+        // Título de eleitor (43-46)
+        voterTitle, voterZone, voterSection, voterEmission,
+        // Documentos adicionais (47-49)
+        militaryCertificate, ctps, ctpsSerie,
+        // Carteira de motorista (50-54)
+        driversLicense, driversLicenseNumber, driversLicenseEmissionDate,
+        driversLicenseExpirationDate, driversLicenseCategory,
+        // Plano de saúde (55-56)
+        healthPlan, healthCardNumber,
+        // Informações acadêmicas (57-63)
+        collegeCep, traineeAddress, traineeAddressNumber, traineeAddressNeighborhood,
+        traineeAddressComplement, traineeAddressState, traineeAddressCity,
+        // Informações acadêmicas continuação (64-68)
+        college, course, trainingPeriod, lifeInsurancePolicy, ra,
+        // Informações de trabalho (69-71)
+        admissionDate, periodWork, contractExpirationDate,
+        // Horas de trabalho (72-75)
+        dailyHours, weeklyHours, monthlyHours, weeklyClasses,
+        // Acúmulo (76-77)
+        hasAccumulate, hasAccumulateCompany,
+        // Informações salariais (78-82)
+        salary, salaryBank, salaryAgency, salaryAccount, salaryAccountType,
+        // Informações salariais continuação (83-85)
+        familySalary, parenting, irpf,
+        // Status e controle (86-89)
+        status || 'Ativo', jobPosition, department, userId
+      ];
 
       const dbResult = await db.query(insertQuery, values);
       const newEmployee = dbResult.rows[0];
@@ -674,14 +1126,27 @@ async function employeeRoutes(fastify) {
           };
         }
         
-        // Construir query de update dinamicamente
+        // Construir query de update dinamicamente para todos os campos
         const updateFields = [];
         const updateValues = [];
         let paramCount = 1;
         
+        // Campos básicos
         if (updateData.fullName) {
           updateFields.push(`full_name = $${paramCount}`);
           updateValues.push(updateData.fullName);
+          paramCount++;
+        }
+        
+        if (updateData.tagName) {
+          updateFields.push(`tag_name = $${paramCount}`);
+          updateValues.push(updateData.tagName);
+          paramCount++;
+        }
+        
+        if (updateData.tagLastName) {
+          updateFields.push(`tag_last_name = $${paramCount}`);
+          updateValues.push(updateData.tagLastName);
           paramCount++;
         }
         
@@ -697,12 +1162,74 @@ async function employeeRoutes(fastify) {
           paramCount++;
         }
         
+        if (updateData.companyNumber !== undefined) {
+          updateFields.push(`company_number = $${paramCount}`);
+          updateValues.push(updateData.companyNumber);
+          paramCount++;
+        }
+        
+        if (updateData.companyName) {
+          updateFields.push(`company_name = $${paramCount}`);
+          updateValues.push(updateData.companyName);
+          paramCount++;
+        }
+        
         if (updateData.email) {
           updateFields.push(`email = $${paramCount}`);
           updateValues.push(updateData.email);
           paramCount++;
         }
         
+        if (updateData.age) {
+          updateFields.push(`age = $${paramCount}`);
+          updateValues.push(updateData.age);
+          paramCount++;
+        }
+        
+        // Endereço
+        if (updateData.cep) {
+          updateFields.push(`cep = $${paramCount}`);
+          updateValues.push(updateData.cep);
+          paramCount++;
+        }
+        
+        if (updateData.employeeAddress) {
+          updateFields.push(`employee_address = $${paramCount}`);
+          updateValues.push(updateData.employeeAddress);
+          paramCount++;
+        }
+        
+        if (updateData.employeeAddressNumber) {
+          updateFields.push(`employee_address_number = $${paramCount}`);
+          updateValues.push(updateData.employeeAddressNumber);
+          paramCount++;
+        }
+        
+        if (updateData.employeeAddressComplement) {
+          updateFields.push(`employee_address_complement = $${paramCount}`);
+          updateValues.push(updateData.employeeAddressComplement);
+          paramCount++;
+        }
+        
+        if (updateData.employeeNeighborhood) {
+          updateFields.push(`employee_neighborhood = $${paramCount}`);
+          updateValues.push(updateData.employeeNeighborhood);
+          paramCount++;
+        }
+        
+        if (updateData.employeeAddressCity) {
+          updateFields.push(`employee_address_city = $${paramCount}`);
+          updateValues.push(updateData.employeeAddressCity);
+          paramCount++;
+        }
+        
+        if (updateData.employeeAddressState) {
+          updateFields.push(`employee_address_state = $${paramCount}`);
+          updateValues.push(updateData.employeeAddressState);
+          paramCount++;
+        }
+        
+        // Contatos
         if (updateData.phone) {
           updateFields.push(`phone = $${paramCount}`);
           updateValues.push(updateData.phone);
@@ -715,9 +1242,129 @@ async function employeeRoutes(fastify) {
           paramCount++;
         }
         
+        // Informações pessoais
+        if (updateData.naturalness) {
+          updateFields.push(`naturalness = $${paramCount}`);
+          updateValues.push(updateData.naturalness);
+          paramCount++;
+        }
+        
+        if (updateData.nationality) {
+          updateFields.push(`nationality = $${paramCount}`);
+          updateValues.push(updateData.nationality);
+          paramCount++;
+        }
+        
+        if (updateData.fatherName) {
+          updateFields.push(`father_name = $${paramCount}`);
+          updateValues.push(updateData.fatherName);
+          paramCount++;
+        }
+        
+        if (updateData.motherName) {
+          updateFields.push(`mother_name = $${paramCount}`);
+          updateValues.push(updateData.motherName);
+          paramCount++;
+        }
+        
+        // Benefícios
+        if (updateData.mealValue !== undefined) {
+          updateFields.push(`meal_value = $${paramCount}`);
+          updateValues.push(updateData.mealValue);
+          paramCount++;
+        }
+        
+        if (updateData.deficiency !== undefined) {
+          updateFields.push(`deficiency = $${paramCount}`);
+          updateValues.push(updateData.deficiency);
+          paramCount++;
+        }
+        
+        if (updateData.deficiencyDescription) {
+          updateFields.push(`deficiency_description = $${paramCount}`);
+          updateValues.push(updateData.deficiencyDescription);
+          paramCount++;
+        }
+        
+        if (updateData.transport !== undefined) {
+          updateFields.push(`transport = $${paramCount}`);
+          updateValues.push(updateData.transport);
+          paramCount++;
+        }
+        
+        if (updateData.transportType) {
+          updateFields.push(`transport_type = $${paramCount}`);
+          updateValues.push(updateData.transportType);
+          paramCount++;
+        }
+        
+        if (updateData.transportValue !== undefined) {
+          updateFields.push(`transport_value = $${paramCount}`);
+          updateValues.push(updateData.transportValue);
+          paramCount++;
+        }
+        
+        // Documentos
+        if (updateData.cpf) {
+          updateFields.push(`cpf = $${paramCount}`);
+          updateValues.push(updateData.cpf);
+          paramCount++;
+        }
+        
+        if (updateData.rg) {
+          updateFields.push(`rg = $${paramCount}`);
+          updateValues.push(updateData.rg);
+          paramCount++;
+        }
+        
+        if (updateData.rgEmitter) {
+          updateFields.push(`rg_emitter = $${paramCount}`);
+          updateValues.push(updateData.rgEmitter);
+          paramCount++;
+        }
+        
+        if (updateData.rgEmissionDate) {
+          updateFields.push(`rg_emission_date = $${paramCount}`);
+          updateValues.push(updateData.rgEmissionDate);
+          paramCount++;
+        }
+        
+        // Status e controle
         if (updateData.status) {
           updateFields.push(`status = $${paramCount}`);
           updateValues.push(updateData.status);
+          paramCount++;
+        }
+        
+        if (updateData.jobPosition) {
+          updateFields.push(`job_position = $${paramCount}`);
+          updateValues.push(updateData.jobPosition);
+          paramCount++;
+        }
+        
+        if (updateData.department) {
+          updateFields.push(`department = $${paramCount}`);
+          updateValues.push(updateData.department);
+          paramCount++;
+        }
+        
+        // Informações salariais básicas
+        if (updateData.salary !== undefined) {
+          updateFields.push(`salary = $${paramCount}`);
+          updateValues.push(updateData.salary);
+          paramCount++;
+        }
+        
+        if (updateData.salaryBank) {
+          updateFields.push(`salary_bank = $${paramCount}`);
+          updateValues.push(updateData.salaryBank);
+          paramCount++;
+        }
+        
+        // Datas importantes
+        if (updateData.admissionDate) {
+          updateFields.push(`admission_date = $${paramCount}`);
+          updateValues.push(updateData.admissionDate);
           paramCount++;
         }
         
@@ -1203,6 +1850,219 @@ async function employeeRoutes(fastify) {
         return {
           error: "Internal Server Error",
           message: "Erro interno do servidor ao exportar dados"
+        };
+      }
+    }
+  );
+
+  // GET /employees/schema - Endpoint de teste para verificar estrutura da tabela
+  fastify.get(
+    "/schema",
+    {
+      schema: {
+        summary: "Verifica estrutura da tabela employees (apenas para debug)",
+        response: {
+          200: {
+            description: "Estrutura da tabela",
+            type: "object",
+            properties: {
+              columns: { type: "array" },
+              sample_data: { type: "object" }
+            }
+          }
+        }
+      }
+    },
+    async (request, reply) => {
+      try {
+        // Verificar estrutura da tabela
+        const columnsQuery = `
+          SELECT column_name, data_type, is_nullable, column_default
+          FROM information_schema.columns 
+          WHERE table_name = 'employees' 
+          ORDER BY ordinal_position;
+        `;
+        
+        const { rows: columns } = await db.query(columnsQuery);
+        
+        // Tentar buscar um registro de exemplo
+        let sampleData = null;
+        try {
+          const sampleQuery = 'SELECT * FROM employees LIMIT 1';
+          const { rows: sample } = await db.query(sampleQuery);
+          sampleData = sample[0] || null;
+        } catch (error) {
+          request.log.warn('Erro ao buscar dados de exemplo:', error.message);
+        }
+        
+        return {
+          table_exists: columns.length > 0,
+          columns: columns.map(col => ({
+            name: col.column_name,
+            type: col.data_type,
+            nullable: col.is_nullable === 'YES',
+            default: col.column_default
+          })),
+          total_columns: columns.length,
+          sample_data: sampleData
+        };
+        
+      } catch (error) {
+        request.log.error("Erro ao verificar estrutura:", error);
+        reply.code(500);
+        return {
+          error: "Internal Server Error",
+          message: "Erro ao verificar estrutura da tabela"
+        };
+      }
+    }
+  );
+
+  // POST /employees/test - Endpoint de teste para verificar processamento de campos
+  fastify.post(
+    "/test",
+    {
+      schema: {
+        summary: "Testa processamento de campos (sem salvar no banco)",
+        consumes: ['multipart/form-data'],
+        response: {
+          200: {
+            description: "Campos processados com sucesso",
+            type: "object",
+            properties: {
+              message: { type: "string" },
+              fields_received: { type: "object" },
+              total_fields: { type: "number" }
+            }
+          }
+        }
+      }
+    },
+    async (request, reply) => {
+      try {
+        // Verificar se é multipart/form-data
+        if (!request.isMultipart()) {
+          reply.code(400);
+          return {
+            error: "Invalid Content-Type",
+            message: "Content-Type deve ser multipart/form-data para este teste"
+          };
+        }
+        
+        const parts = request.parts();
+        const fieldsReceived = {};
+        let fileReceived = false;
+        
+        // Processar cada parte
+        for await (const part of parts) {
+          if (part.type === 'file') {
+            fileReceived = true;
+            fieldsReceived['file'] = {
+              filename: part.filename,
+              mimetype: part.mimetype,
+              size: (await part.toBuffer()).length
+            };
+          } else {
+            const value = await part.value;
+            fieldsReceived[part.fieldname] = value;
+          }
+        }
+        
+        return {
+          message: "Campos processados com sucesso (teste)",
+          file_received: fileReceived,
+          fields_received: fieldsReceived,
+          total_fields: Object.keys(fieldsReceived).length
+        };
+        
+      } catch (error) {
+        request.log.error("Erro no teste:", error);
+        reply.code(500);
+        return {
+          error: "Test Error",
+          message: error.message
+        };
+      }
+    }
+  );
+
+  // GET /employees/test-fields - Endpoint de teste para validar campos
+  fastify.get(
+    "/test-fields",
+    {
+      schema: {
+        summary: "Endpoint de teste para validar todos os campos disponíveis",
+        tags: ["test"],
+        response: {
+          200: {
+            description: "Lista de campos testados",
+            type: "object"
+          }
+        }
+      }
+    },
+    async (request, reply) => {
+      try {
+        request.log.info("Iniciando teste de campos...");
+        
+        // Verificar estrutura da tabela
+        const columnsQuery = `
+          SELECT column_name, data_type, is_nullable 
+          FROM information_schema.columns 
+          WHERE table_name = 'employees' 
+          ORDER BY ordinal_position
+        `;
+        request.log.info("Executando query para colunas...");
+        const { rows: columns } = await db.query(columnsQuery);
+        request.log.info(`Encontradas ${columns.length} colunas`);
+        
+        // Contar funcionários
+        request.log.info("Contando funcionários...");
+        const { rows: countRows } = await db.query('SELECT COUNT(*) as total FROM employees');
+        const totalEmployees = countRows[0].total;
+        request.log.info(`Total de funcionários: ${totalEmployees}`);
+        
+        // Verificar se há funcionários para testar
+        let sampleEmployee = null;
+        if (totalEmployees > 0) {
+          request.log.info("Buscando funcionário de exemplo...");
+          const { rows: sampleRows } = await db.query('SELECT * FROM employees LIMIT 1');
+          sampleEmployee = sampleRows[0];
+        }
+        
+        const result = {
+          status: "success",
+          database_connected: true,
+          table_exists: true,
+          total_columns: columns.length,
+          total_employees: parseInt(totalEmployees),
+          columns: columns.map(col => ({
+            name: col.column_name,
+            type: col.data_type,
+            nullable: col.is_nullable === 'YES'
+          })),
+          sample_employee_keys: sampleEmployee ? Object.keys(sampleEmployee) : [],
+          endpoints_available: {
+            "GET /employees": "Lista todos os funcionários",
+            "POST /employees": "Cria funcionário (89 campos aceitos)",
+            "PUT /employees/:id": "Atualiza funcionário (parcial)",
+            "GET /employees/:id": "Busca por ID",
+            "DELETE /employees/:id": "Remove funcionário",
+            "GET /employees/search": "Busca com filtros",
+            "GET /employees/:id/badge": "Gera crachá PDF",
+            "POST /employees/badges": "Gera múltiplos crachás",
+            "GET /employees/export": "Exporta dados CSV/JSON"
+          }
+        };
+        
+        request.log.info("Retornando resultado:", result);
+        return result;
+      } catch (error) {
+        request.log.error("Erro no teste:", error);
+        reply.code(500);
+        return {
+          status: "error",
+          message: error.message
         };
       }
     }
