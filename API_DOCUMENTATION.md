@@ -180,9 +180,116 @@ Content-Type: multipart/form-data
 - `tagLastName` (string): Sobrenome para crachá (1-50 caracteres)
 - `file` (arquivo): Foto do funcionário (JPG/PNG, máximo 5MB)
 
-**Parâmetros Opcionais:**
+**Parâmetros Opcionais - Dados Básicos:**
 - `jobFunctions` (string): Cargo/função (2-100 caracteres)
 - `birthday` (string): Data de nascimento (formato YYYY-MM-DD)
+- `companyNumber` (integer): Número da empresa
+- `companyName` (string): Nome da empresa
+- `email` (string): Email do funcionário
+- `age` (string): Idade
+
+**Parâmetros Opcionais - Endereço:**
+- `cep` (string): CEP
+- `employeeAddress` (string): Endereço
+- `employeeAddressNumber` (string): Número do endereço
+- `employeeAddressComplement` (string): Complemento
+- `employeeNeighborhood` (string): Bairro
+- `employeeAddressCity` (string): Cidade
+- `employeeAddressState` (string): Estado (2 caracteres)
+
+**Parâmetros Opcionais - Contatos:**
+- `phone` (string): Telefone
+- `mobile` (string): Celular
+
+**Parâmetros Opcionais - Informações Pessoais:**
+- `naturalness` (string): Naturalidade
+- `nationality` (string): Nacionalidade
+- `fatherName` (string): Nome do pai
+- `motherName` (string): Nome da mãe
+- `gender` (string): Gênero
+- `maritalStatus` (string): Estado civil
+- `graduation` (string): Escolaridade
+- `skinColor` (string): Cor/raça
+
+**Parâmetros Opcionais - Documentos:**
+- `cpf` (string): CPF
+- `rg` (string): RG
+- `rgEmitter` (string): Órgão emissor do RG
+- `rgEmissionDate` (string): Data de emissão do RG (YYYY-MM-DD)
+- `pisPasep` (string): PIS/PASEP
+- `voterTitle` (string): Título de eleitor
+- `voterZone` (string): Zona eleitoral
+- `voterSection` (string): Seção eleitoral
+- `voterEmission` (string): Data de emissão do título (YYYY-MM-DD)
+- `militaryCertificate` (string): Certificado militar
+- `ctps` (string): CTPS
+- `ctpsSerie` (string): Série da CTPS
+
+**Parâmetros Opcionais - Carteira de Motorista:**
+- `driversLicense` (boolean): Possui CNH
+- `driversLicenseNumber` (string): Número da CNH
+- `driversLicenseEmissionDate` (string): Data de emissão (YYYY-MM-DD)
+- `driversLicenseExpirationDate` (string): Data de validade (YYYY-MM-DD)
+- `driversLicenseCategory` (string): Categoria da CNH
+
+**Parâmetros Opcionais - Benefícios:**
+- `mealValue` (number): Valor da refeição
+- `deficiency` (boolean): Possui deficiência
+- `deficiencyDescription` (string): Descrição da deficiência
+- `transport` (boolean): Utiliza transporte
+- `transportType` (string): Tipo de transporte
+- `transportValue` (number): Valor do transporte
+
+**Parâmetros Opcionais - Informações do Cônjuge:**
+- `partnerName` (string): Nome do cônjuge
+- `partnerCpf` (string): CPF do cônjuge
+- `partnerBirthday` (string): Data de nascimento do cônjuge (YYYY-MM-DD)
+- `partnerRg` (string): RG do cônjuge
+
+**Parâmetros Opcionais - Plano de Saúde:**
+- `healthPlan` (string): Plano de saúde
+- `healthCardNumber` (string): Número da carteirinha
+
+**Parâmetros Opcionais - Informações Acadêmicas (Estagiários):**
+- `collegeCep` (string): CEP da faculdade
+- `traineeAddress` (string): Endereço acadêmico
+- `traineeAddressNumber` (integer): Número do endereço acadêmico
+- `traineeAddressNeighborhood` (string): Bairro acadêmico
+- `traineeAddressComplement` (string): Complemento acadêmico
+- `traineeAddressState` (string): Estado acadêmico
+- `traineeAddressCity` (string): Cidade acadêmica
+- `college` (string): Faculdade
+- `course` (string): Curso
+- `trainingPeriod` (string): Período de treinamento
+- `lifeInsurancePolicy` (string): Apólice de seguro de vida
+- `ra` (string): Registro acadêmico
+
+**Parâmetros Opcionais - Informações Trabalhistas:**
+- `admissionDate` (string): Data de admissão (YYYY-MM-DD)
+- `periodWork` (string): Período de trabalho
+- `contractExpirationDate` (string): Data de expiração do contrato (YYYY-MM-DD)
+- `dailyHours` (string): Horas diárias
+- `weeklyHours` (string): Horas semanais
+- `monthlyHours` (string): Horas mensais
+- `weeklyClasses` (string): Aulas semanais
+- `hasAccumulate` (boolean): Possui acúmulo
+- `hasAccumulateCompany` (string): Empresa de acúmulo
+
+**Parâmetros Opcionais - Informações Salariais:**
+- `salary` (number): Salário
+- `salaryBank` (string): Banco para salário
+- `salaryAgency` (string): Agência bancária
+- `salaryAccount` (string): Conta bancária
+- `salaryAccountType` (string): Tipo de conta
+- `familySalary` (number): Salário família
+- `parenting` (string): Filhos
+- `irpf` (string): IRPF
+
+**Parâmetros Opcionais - Status e Controle:**
+- `status` (string): Status (Ativo, Inativo, Licença) - padrão: "Ativo"
+- `jobPosition` (string): Posição no trabalho
+- `department` (string): Departamento
+- `userId` (string): ID do usuário
 
 **Exemplo de Request (FormData):**
 ```javascript
